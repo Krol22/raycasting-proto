@@ -1,5 +1,3 @@
-import { map } from './map';
-
 const MAP_ROWS = 24;
 const MAP_COLS = 24;
 
@@ -10,10 +8,16 @@ ctx.strokeStyle = 'white';
 let mouseX = 0;
 let mouseY = 0;
 
+const scene = [];
+
 window.addEventListener('mousemove', e => {
   mouseX = e.x;
   mouseY = e.y;
 });
+
+const map = (input, a, b, c, d) => {
+  return c + ((d - c) / (b - a)) * (input - a);
+};
 
 class Particle {
   constructor() {
@@ -32,22 +36,21 @@ class Particle {
     ctx.arc(0, 0, 2, 0, 2 * Math.PI);
     ctx.stroke();
     ctx.restore();
-    // for (let i = 0; i < this.rays.length; i++) {
-      // this.rays[i].draw();
-    // }
   }
 
   update() {
     this.posX = mouseX;
     this.posY = mouseY;
     this.rays = [];
-    for (let i = -Math.PI; i < Math.PI; i += Math.PI / 100) {
+    for (let i = -Math.PI / 6; i < Math.PI / 6; i += Math.PI / 200) {
       this.rays.push(new Ray(this.posX, this.posY, i));
     }
   }
 
   look(walls) {
-    this.rays.forEach(ray => {
+    const scene = [];
+    const firstAndLastPairs = [];
+    this.rays.forEach((ray, index) => {
       let closest = null;
       let record = Infinity;
       walls.forEach(wall => {
@@ -58,7 +61,6 @@ class Particle {
             record = d;
             closest = pt;
           }
-
         }
       });
 
@@ -71,7 +73,11 @@ class Particle {
         ctx.stroke();
         ctx.restore();
       }
+
+      scene[index] = record;
     });
+
+    return scene;
   }
 }
 
@@ -123,6 +129,8 @@ class Ray {
   }
 
   cast(wall) {
+    this.wall = wall;
+
     const { x1, x2, y1, y2 } = wall;
 
     const x3 = this.posX;
@@ -153,11 +161,19 @@ class Ray {
 
 const wall = new Boundary(300, 100, 300, 300);
 const wall2 = new Boundary(300, 100, 200, 300);
-const wall3 = new Boundary(100, 200, 300, 100);
+const wall3 = new Boundary(100, 200, 300, 200);
+const wall4 = new Boundary(0, 0, 400, 0);
+const wall5 = new Boundary(0, 0, 0, 400);
+const wall6 = new Boundary(400, 0, 400, 400);
+const wall7 = new Boundary(400, 400, 0, 400);
 const walls = [
   wall,
   wall2,
   wall3,
+  wall4,
+  wall5,
+  wall6,
+  wall7,
 ];
 
 const particle = new Particle();
@@ -170,9 +186,22 @@ const update = () => {
     wall.draw();
   });
 
-  particle.look(walls);
+  const scene = particle.look(walls);
   particle.draw();
   particle.update();
+
+  const width = 400 / scene.length;
+
+  scene.forEach((col, index) => {
+    ctx.save();
+    ctx.translate(400, 0);
+    const mapped = map(col, 0, 400, 400, 0);
+    const white = map(col, 0, 400, 1, 0);
+    ctx.fillStyle = `rgba(255, 255, 255, ${white})`;
+    ctx.fillRect(index * width, (400 - mapped) / 2, width, mapped); 
+
+    ctx.restore();
+  });
   // ray.draw();
   // ray.setDirection(mouseX, mouseY);
 // //

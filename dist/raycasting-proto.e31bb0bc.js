@@ -117,20 +117,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"map.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.map = void 0;
-var map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 0, 0, 0, 5, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
-exports.map = map;
-},{}],"index.js":[function(require,module,exports) {
-"use strict";
-
-var _map = require("./map");
-
+})({"index.js":[function(require,module,exports) {
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -144,10 +131,15 @@ var ctx = canvas.getContext('2d');
 ctx.strokeStyle = 'white';
 var mouseX = 0;
 var mouseY = 0;
+var scene = [];
 window.addEventListener('mousemove', function (e) {
   mouseX = e.x;
   mouseY = e.y;
 });
+
+var map = function map(input, a, b, c, d) {
+  return c + (d - c) / (b - a) * (input - a);
+};
 
 var Particle =
 /*#__PURE__*/
@@ -172,9 +164,7 @@ function () {
       ctx.translate(this.posX, this.posY);
       ctx.arc(0, 0, 2, 0, 2 * Math.PI);
       ctx.stroke();
-      ctx.restore(); // for (let i = 0; i < this.rays.length; i++) {
-      // this.rays[i].draw();
-      // }
+      ctx.restore();
     }
   }, {
     key: "update",
@@ -183,7 +173,7 @@ function () {
       this.posY = mouseY;
       this.rays = [];
 
-      for (var i = -Math.PI; i < Math.PI; i += Math.PI / 100) {
+      for (var i = -Math.PI / 6; i < Math.PI / 6; i += Math.PI / 200) {
         this.rays.push(new Ray(this.posX, this.posY, i));
       }
     }
@@ -192,7 +182,9 @@ function () {
     value: function look(walls) {
       var _this = this;
 
-      this.rays.forEach(function (ray) {
+      var scene = [];
+      var firstAndLastPairs = [];
+      this.rays.forEach(function (ray, index) {
         var closest = null;
         var record = Infinity;
         walls.forEach(function (wall) {
@@ -217,7 +209,10 @@ function () {
           ctx.stroke();
           ctx.restore();
         }
+
+        scene[index] = record;
       });
+      return scene;
     }
   }]);
 
@@ -289,6 +284,7 @@ function () {
   }, {
     key: "cast",
     value: function cast(wall) {
+      this.wall = wall;
       var x1 = wall.x1,
           x2 = wall.x2,
           y1 = wall.y1,
@@ -322,8 +318,12 @@ function () {
 
 var wall = new Boundary(300, 100, 300, 300);
 var wall2 = new Boundary(300, 100, 200, 300);
-var wall3 = new Boundary(100, 200, 300, 100);
-var walls = [wall, wall2, wall3];
+var wall3 = new Boundary(100, 200, 300, 200);
+var wall4 = new Boundary(0, 0, 400, 0);
+var wall5 = new Boundary(0, 0, 0, 400);
+var wall6 = new Boundary(400, 0, 400, 400);
+var wall7 = new Boundary(400, 400, 0, 400);
+var walls = [wall, wall2, wall3, wall4, wall5, wall6, wall7];
 var particle = new Particle();
 
 var update = function update() {
@@ -333,9 +333,19 @@ var update = function update() {
   walls.forEach(function (wall) {
     wall.draw();
   });
-  particle.look(walls);
+  var scene = particle.look(walls);
   particle.draw();
-  particle.update(); // ray.draw();
+  particle.update();
+  var width = 400 / scene.length;
+  scene.forEach(function (col, index) {
+    ctx.save();
+    ctx.translate(400, 0);
+    var mapped = map(col, 0, 400, 400, 0);
+    var white = map(col, 0, 400, 1, 0);
+    ctx.fillStyle = "rgba(255, 255, 255, ".concat(white, ")");
+    ctx.fillRect(index * width, (400 - mapped) / 2, width, mapped);
+    ctx.restore();
+  }); // ray.draw();
   // ray.setDirection(mouseX, mouseY);
   // //
   // let pt = ray.cast(wall);
@@ -355,7 +365,7 @@ var loop = function loop() {
 };
 
 window.requestAnimationFrame(loop);
-},{"./map":"map.js"}],"../../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{}],"../../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
