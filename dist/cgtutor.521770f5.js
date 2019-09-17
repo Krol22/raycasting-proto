@@ -117,246 +117,149 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"index.js":[function(require,module,exports) {
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+})({"map.js":[function(require,module,exports) {
+"use strict";
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-var MAP_ROWS = 24;
-var MAP_COLS = 24;
-var canvas = document.querySelector('#game-canvas');
-var ctx = canvas.getContext('2d');
-ctx.strokeStyle = 'white';
-var mouseX = 0;
-var mouseY = 0;
-var scene = [];
-window.addEventListener('mousemove', function (e) {
-  mouseX = e.x;
-  mouseY = e.y;
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
+exports.map = void 0;
+var map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 0, 0, 0, 5, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
+exports.map = map;
+},{}],"cgtutor.js":[function(require,module,exports) {
+"use strict";
 
-var map = function map(input, a, b, c, d) {
-  return c + (d - c) / (b - a) * (input - a);
-};
+var _map = require("./map");
 
-var Particle =
-/*#__PURE__*/
-function () {
-  function Particle() {
-    _classCallCheck(this, Particle);
-
-    this.posX = 100;
-    this.posY = 200;
-    this.rays = [];
-
-    for (var i = -Math.PI; i < Math.PI; i += Math.PI / 100) {
-      this.rays.push(new Ray(this.posX, this.posY, i));
-    }
-  }
-
-  _createClass(Particle, [{
-    key: "draw",
-    value: function draw() {
-      ctx.save();
-      ctx.beginPath();
-      ctx.translate(this.posX, this.posY);
-      ctx.arc(0, 0, 2, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.restore();
-    }
-  }, {
-    key: "update",
-    value: function update() {
-      this.posX = mouseX;
-      this.posY = mouseY;
-      this.rays = [];
-
-      for (var i = -Math.PI / 6; i < Math.PI / 6; i += Math.PI / 200) {
-        this.rays.push(new Ray(this.posX, this.posY, i));
-      }
-    }
-  }, {
-    key: "look",
-    value: function look(walls) {
-      var _this = this;
-
-      var scene = [];
-      var firstAndLastPairs = [];
-      this.rays.forEach(function (ray, index) {
-        var closest = null;
-        var record = Infinity;
-        walls.forEach(function (wall) {
-          var pt = ray.cast(wall);
-
-          if (pt) {
-            var d = Math.sqrt(Math.pow(_this.posX - pt.x, 2) + Math.pow(_this.posY - pt.y, 2));
-
-            if (d < record) {
-              record = d;
-              closest = pt;
-            }
-          }
-        });
-
-        if (closest) {
-          ctx.save();
-          ctx.beginPath();
-          ctx.translate(_this.posX, _this.posY);
-          ctx.moveTo(0, 0);
-          ctx.lineTo(closest.x - _this.posX, closest.y - _this.posY);
-          ctx.stroke();
-          ctx.restore();
-        }
-
-        scene[index] = record;
-      });
-      return scene;
-    }
-  }]);
-
-  return Particle;
-}();
-
-var Boundary =
-/*#__PURE__*/
-function () {
-  function Boundary(x1, y1, x2, y2) {
-    _classCallCheck(this, Boundary);
-
-    this.x1 = x1;
-    this.y1 = y1;
-    this.x2 = x2;
-    this.y2 = y2;
-  }
-
-  _createClass(Boundary, [{
-    key: "draw",
-    value: function draw() {
-      ctx.save();
-      ctx.beginPath();
-      ctx.lineWidth = '3';
-      ctx.translate(this.x1, this.y1);
-      ctx.moveTo(0, 0);
-      ctx.lineTo(this.x2 - this.x1, this.y2 - this.y1);
-      ctx.stroke();
-      ctx.restore();
-    }
-  }]);
-
-  return Boundary;
-}();
-
-var Ray =
-/*#__PURE__*/
-function () {
-  function Ray(x, y, angle) {
-    _classCallCheck(this, Ray);
-
-    this.posX = x;
-    this.posY = y;
-    this.dirX = Math.sin(angle);
-    this.dirY = Math.cos(angle);
-  }
-
-  _createClass(Ray, [{
-    key: "draw",
-    value: function draw() {
-      ctx.save();
-      ctx.beginPath();
-      ctx.lineWidth = '1';
-      ctx.translate(this.posX, this.posY);
-      ctx.moveTo(0, 0);
-      ctx.lineTo(this.dirX * 50, this.dirY * 50);
-      ctx.stroke();
-      ctx.restore();
-    }
-  }, {
-    key: "setDirection",
-    value: function setDirection(x, y) {
-      this.dirX = x - this.posX;
-      this.dirY = y - this.posY;
-      var len = Math.sqrt(Math.pow(this.dirX, 2) + Math.pow(this.dirY, 2));
-      this.dirX = this.dirX / len;
-      this.dirY = this.dirY / len;
-    }
-  }, {
-    key: "cast",
-    value: function cast(wall) {
-      this.wall = wall;
-      var x1 = wall.x1,
-          x2 = wall.x2,
-          y1 = wall.y1,
-          y2 = wall.y2;
-      var x3 = this.posX;
-      var y3 = this.posY;
-      var x4 = this.posX + this.dirX;
-      var y4 = this.posY + this.dirY;
-      var den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4); // ray and wall are parallel
-
-      if (den === 0) {
-        return;
-      }
-
-      var t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
-      var u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
-
-      if (t <= 0 || t >= 1 || u <= 0) {
-        return;
-      }
-
-      return {
-        x: x1 + t * (x2 - x1),
-        y: y1 + t * (y2 - y1)
-      };
-    }
-  }]);
-
-  return Ray;
-}();
-
-var wall = new Boundary(300, 100, 300, 300);
-var wall2 = new Boundary(300, 100, 200, 300);
-var wall3 = new Boundary(100, 200, 300, 200);
-var wall4 = new Boundary(0, 0, 400, 0);
-var wall5 = new Boundary(0, 0, 0, 400);
-var wall6 = new Boundary(400, 0, 400, 400);
-var wall7 = new Boundary(400, 400, 0, 400);
-var walls = [wall, wall2, wall3, wall4, wall5, wall6, wall7];
-var particle = new Particle();
+console.log(_map.map);
+var MAP_WIDTH = 24;
+var MAP_HEIGHT = 24;
+var ctx = document.querySelector('#game-canvas').getContext('2d');
+var posX = 22;
+var posY = 12;
+var dirX = -1;
+var dirY = 0;
+var planeX = 0;
+var planeY = 0.66;
+var time = 0;
+var oldTime = 0;
+var cameraX, rayDirX, rayDirY;
+var w = 400;
+var h = 400;
 
 var update = function update() {
-  ctx.clearRect(0, 0, 800, 600);
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, 800, 600);
-  walls.forEach(function (wall) {
-    wall.draw();
-  });
-  var scene = particle.look(walls);
-  particle.draw();
-  particle.update();
-  var width = 400 / scene.length;
-  scene.forEach(function (col, index) {
+  // cast 'RAYS';
+  for (var x = 0; x < w; x++) {
+    cameraX = 2 * x / w - 1; // get ray direction
+
+    rayDirX = dirX + planeX * cameraX;
+    rayDirY = dirY + planeY * cameraX; // -------- DDA ---------
+    // get player coords;
+
+    var mapX = Math.floor(posX);
+    var mapY = Math.floor(posY); // length of ray from current position to next x or y-side
+
+    var sideDistX = void 0,
+        sideDistY = void 0; // length of ray from one x or y-side to next x or y-side
+
+    var deltaDistX = Math.abs(1 / rayDirX);
+    var deltaDistY = Math.abs(1 / rayDirY);
+    var prepWallDist = void 0; // direction of step
+
+    var stepX = void 0;
+    var stepY = void 0;
+    var hit = false;
+    var side = void 0; // 0 if x-axis side was hit 1 when y-axis side was hit
+    // calculate step & initial sideDist,
+
+    if (rayDirX < 0) {
+      stepX = -1;
+      sideDistX = (posX - mapX) * deltaDistX;
+    } else {
+      stepX = 1;
+      sideDistX = (mapX + 1.0 - posX) * deltaDistX;
+    }
+
+    if (rayDirY < 0) {
+      stepY = -1;
+      sideDistY = (posY - mapY) * deltaDistY;
+    } else {
+      stepY = 1;
+      sideDistY = (mapY + 1.0 - posY) * deltaDistY;
+    } // Actual DDA
+
+
+    while (!hit) {
+      if (sideDistX < sideDistY) {
+        sideDistX += deltaDistX;
+        mapX += stepX;
+        side = 0;
+      } else {
+        sideDistY += deltaDistY;
+        mapY += stepY;
+        side = 1;
+      }
+
+      if (_map.map[mapX][mapY] > 0) {
+        hit = true;
+      }
+    } // ------- DDA DONE -------
+    // Calculate distance projected on camera
+
+
+    if (side = 0) {
+      prepWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
+    } else {
+      prepWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
+    } // Calculate col height;
+
+
+    var lineHeight = h / prepWallDist; // calculate lowest and highest pixel;
+
+    var drawStart = -lineHeight / 2 + h / 2;
+    if (drawStart < 0) drawStart = 0;
+    var drawEnd = lineHeight / 2 + h / 2;
+    if (drawEnd >= h) drawEnd = h - 1;
+    var color = void 0;
+
+    switch (_map.map[mapX][mapY]) {
+      case 1:
+        {
+          color = 'red';
+          break;
+        }
+
+      case 2:
+        {
+          color = 'green';
+          break;
+        }
+
+      case 3:
+        {
+          color = 'blue';
+          break;
+        }
+
+      case 4:
+        {
+          color = 'white';
+          break;
+        }
+
+      default:
+        {
+          color = 'yellow';
+        }
+    }
+
     ctx.save();
-    ctx.translate(400, 0);
-    var mapped = map(col, 0, 400, 400, 0);
-    var white = map(col, 0, 400, 1, 0);
-    ctx.fillStyle = "rgba(255, 255, 255, ".concat(white, ")");
-    ctx.fillRect(index * width, (400 - mapped) / 2, width, mapped);
+    ctx.translate(x * 10, drawStart);
+    ctx.moveTo(0, 0);
+    ctx.fillStyle = color;
+    ctx.rect(0, 0, x * 10, drawEnd);
     ctx.restore();
-  }); // ray.draw();
-  // ray.setDirection(mouseX, mouseY);
-  // //
-  // let pt = ray.cast(wall);
-  // if (pt) {
-  // ctx.save();
-  // ctx.beginPath();
-  // ctx.translate(pt.x, pt.y);
-  // ctx.arc(0, 0, 10, 0, 2 * Math.PI);
-  // ctx.stroke();
-  // ctx.restore();
-  // }
+  }
 };
 
 var loop = function loop() {
@@ -365,7 +268,7 @@ var loop = function loop() {
 };
 
 window.requestAnimationFrame(loop);
-},{}],"../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./map":"map.js"}],"../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -393,7 +296,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59061" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59383" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -568,5 +471,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)
-//# sourceMappingURL=/raycasting-proto.e31bb0bc.js.map
+},{}]},{},["../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","cgtutor.js"], null)
+//# sourceMappingURL=/cgtutor.521770f5.js.map

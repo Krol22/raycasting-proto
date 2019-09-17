@@ -117,255 +117,74 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"index.js":[function(require,module,exports) {
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+})({"../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+var bundleURL = null;
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+function getBundleURLCached() {
+  if (!bundleURL) {
+    bundleURL = getBundleURL();
+  }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+  return bundleURL;
+}
 
-var MAP_ROWS = 24;
-var MAP_COLS = 24;
-var canvas = document.querySelector('#game-canvas');
-var ctx = canvas.getContext('2d');
-ctx.strokeStyle = 'white';
-var mouseX = 0;
-var mouseY = 0;
-var scene = [];
-window.addEventListener('mousemove', function (e) {
-  mouseX = e.x;
-  mouseY = e.y;
-});
+function getBundleURL() {
+  // Attempt to find the URL of the current script and use that as the base URL
+  try {
+    throw new Error();
+  } catch (err) {
+    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
 
-var map = function map(input, a, b, c, d) {
-  return c + (d - c) / (b - a) * (input - a);
-};
-
-var Particle =
-/*#__PURE__*/
-function () {
-  function Particle() {
-    _classCallCheck(this, Particle);
-
-    this.posX = 100;
-    this.posY = 200;
-    this.rays = [];
-
-    for (var i = -Math.PI; i < Math.PI; i += Math.PI / 100) {
-      this.rays.push(new Ray(this.posX, this.posY, i));
+    if (matches) {
+      return getBaseURL(matches[0]);
     }
   }
 
-  _createClass(Particle, [{
-    key: "draw",
-    value: function draw() {
-      ctx.save();
-      ctx.beginPath();
-      ctx.translate(this.posX, this.posY);
-      ctx.arc(0, 0, 2, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.restore();
-    }
-  }, {
-    key: "update",
-    value: function update() {
-      this.posX = mouseX;
-      this.posY = mouseY;
-      this.rays = [];
+  return '/';
+}
 
-      for (var i = -Math.PI / 6; i < Math.PI / 6; i += Math.PI / 200) {
-        this.rays.push(new Ray(this.posX, this.posY, i));
-      }
-    }
-  }, {
-    key: "look",
-    value: function look(walls) {
-      var _this = this;
+function getBaseURL(url) {
+  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
+}
 
-      var scene = [];
-      var firstAndLastPairs = [];
-      this.rays.forEach(function (ray, index) {
-        var closest = null;
-        var record = Infinity;
-        walls.forEach(function (wall) {
-          var pt = ray.cast(wall);
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+},{}],"../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
+var bundle = require('./bundle-url');
 
-          if (pt) {
-            var d = Math.sqrt(Math.pow(_this.posX - pt.x, 2) + Math.pow(_this.posY - pt.y, 2));
+function updateLink(link) {
+  var newLink = link.cloneNode();
 
-            if (d < record) {
-              record = d;
-              closest = pt;
-            }
-          }
-        });
+  newLink.onload = function () {
+    link.remove();
+  };
 
-        if (closest) {
-          ctx.save();
-          ctx.beginPath();
-          ctx.translate(_this.posX, _this.posY);
-          ctx.moveTo(0, 0);
-          ctx.lineTo(closest.x - _this.posX, closest.y - _this.posY);
-          ctx.stroke();
-          ctx.restore();
-        }
+  newLink.href = link.href.split('?')[0] + '?' + Date.now();
+  link.parentNode.insertBefore(newLink, link.nextSibling);
+}
 
-        scene[index] = record;
-      });
-      return scene;
-    }
-  }]);
+var cssTimeout = null;
 
-  return Particle;
-}();
-
-var Boundary =
-/*#__PURE__*/
-function () {
-  function Boundary(x1, y1, x2, y2) {
-    _classCallCheck(this, Boundary);
-
-    this.x1 = x1;
-    this.y1 = y1;
-    this.x2 = x2;
-    this.y2 = y2;
+function reloadCSS() {
+  if (cssTimeout) {
+    return;
   }
 
-  _createClass(Boundary, [{
-    key: "draw",
-    value: function draw() {
-      ctx.save();
-      ctx.beginPath();
-      ctx.lineWidth = '3';
-      ctx.translate(this.x1, this.y1);
-      ctx.moveTo(0, 0);
-      ctx.lineTo(this.x2 - this.x1, this.y2 - this.y1);
-      ctx.stroke();
-      ctx.restore();
-    }
-  }]);
+  cssTimeout = setTimeout(function () {
+    var links = document.querySelectorAll('link[rel="stylesheet"]');
 
-  return Boundary;
-}();
-
-var Ray =
-/*#__PURE__*/
-function () {
-  function Ray(x, y, angle) {
-    _classCallCheck(this, Ray);
-
-    this.posX = x;
-    this.posY = y;
-    this.dirX = Math.sin(angle);
-    this.dirY = Math.cos(angle);
-  }
-
-  _createClass(Ray, [{
-    key: "draw",
-    value: function draw() {
-      ctx.save();
-      ctx.beginPath();
-      ctx.lineWidth = '1';
-      ctx.translate(this.posX, this.posY);
-      ctx.moveTo(0, 0);
-      ctx.lineTo(this.dirX * 50, this.dirY * 50);
-      ctx.stroke();
-      ctx.restore();
-    }
-  }, {
-    key: "setDirection",
-    value: function setDirection(x, y) {
-      this.dirX = x - this.posX;
-      this.dirY = y - this.posY;
-      var len = Math.sqrt(Math.pow(this.dirX, 2) + Math.pow(this.dirY, 2));
-      this.dirX = this.dirX / len;
-      this.dirY = this.dirY / len;
-    }
-  }, {
-    key: "cast",
-    value: function cast(wall) {
-      this.wall = wall;
-      var x1 = wall.x1,
-          x2 = wall.x2,
-          y1 = wall.y1,
-          y2 = wall.y2;
-      var x3 = this.posX;
-      var y3 = this.posY;
-      var x4 = this.posX + this.dirX;
-      var y4 = this.posY + this.dirY;
-      var den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4); // ray and wall are parallel
-
-      if (den === 0) {
-        return;
+    for (var i = 0; i < links.length; i++) {
+      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
+        updateLink(links[i]);
       }
-
-      var t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
-      var u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
-
-      if (t <= 0 || t >= 1 || u <= 0) {
-        return;
-      }
-
-      return {
-        x: x1 + t * (x2 - x1),
-        y: y1 + t * (y2 - y1)
-      };
     }
-  }]);
 
-  return Ray;
-}();
+    cssTimeout = null;
+  }, 50);
+}
 
-var wall = new Boundary(300, 100, 300, 300);
-var wall2 = new Boundary(300, 100, 200, 300);
-var wall3 = new Boundary(100, 200, 300, 200);
-var wall4 = new Boundary(0, 0, 400, 0);
-var wall5 = new Boundary(0, 0, 0, 400);
-var wall6 = new Boundary(400, 0, 400, 400);
-var wall7 = new Boundary(400, 400, 0, 400);
-var walls = [wall, wall2, wall3, wall4, wall5, wall6, wall7];
-var particle = new Particle();
-
-var update = function update() {
-  ctx.clearRect(0, 0, 800, 600);
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, 800, 600);
-  walls.forEach(function (wall) {
-    wall.draw();
-  });
-  var scene = particle.look(walls);
-  particle.draw();
-  particle.update();
-  var width = 400 / scene.length;
-  scene.forEach(function (col, index) {
-    ctx.save();
-    ctx.translate(400, 0);
-    var mapped = map(col, 0, 400, 400, 0);
-    var white = map(col, 0, 400, 1, 0);
-    ctx.fillStyle = "rgba(255, 255, 255, ".concat(white, ")");
-    ctx.fillRect(index * width, (400 - mapped) / 2, width, mapped);
-    ctx.restore();
-  }); // ray.draw();
-  // ray.setDirection(mouseX, mouseY);
-  // //
-  // let pt = ray.cast(wall);
-  // if (pt) {
-  // ctx.save();
-  // ctx.beginPath();
-  // ctx.translate(pt.x, pt.y);
-  // ctx.arc(0, 0, 10, 0, 2 * Math.PI);
-  // ctx.stroke();
-  // ctx.restore();
-  // }
-};
-
-var loop = function loop() {
-  update();
-  window.requestAnimationFrame(loop);
-};
-
-window.requestAnimationFrame(loop);
-},{}],"../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+module.exports = reloadCSS;
+},{"./bundle-url":"../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -393,7 +212,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59061" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59383" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -568,5 +387,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)
-//# sourceMappingURL=/raycasting-proto.e31bb0bc.js.map
+},{}]},{},["../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
+//# sourceMappingURL=/cgtutor.js.map
