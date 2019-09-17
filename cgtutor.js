@@ -19,7 +19,7 @@ let oldTime = 0;
 
 let cameraX, rayDirX, rayDirY;
 
-let w = 400;
+let w = 800;
 let h = 400;
 
 const update = () => {
@@ -99,7 +99,6 @@ const update = () => {
     let lineHeight = h / prepWallDist;
 
     // calculate lowest and highest pixel;
-
     let drawStart = -lineHeight / 2 + h / 2;
     if (drawStart < 0) drawStart = 0;
 
@@ -129,18 +128,63 @@ const update = () => {
       }
     }
 
+    if (side === 1) {
+      color = 'gray';
+    }
+
     ctx.save();
-    ctx.translate(x * 10, drawStart);
+    console.log(drawEnd);
+    ctx.translate(x * 1, drawStart);
     ctx.moveTo(0, 0);
     ctx.fillStyle = color;
-    ctx.rect(0, 0, x * 10, drawEnd);
+    ctx.fillRect(0, 0, x * 1, drawEnd);
     ctx.restore();
   }
 };
 
 const loop = () => {
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0, 0, 800, 400);
   update(); 
   window.requestAnimationFrame(loop);
 };
+
+const rotSpeed = 0.1;
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'ArrowUp') {
+    posY += dirY * 0.5;
+  }
+  if (e.key === 'ArrowDown') {
+    posY -= dirY * 0.5;
+  }
+  if (e.key === 'ArrowRight') {
+    posX += dirX * 0.5;
+  }
+  if (e.key === 'ArrowLeft') {
+    posX -= dirX * 0.5;
+  }
+
+  if (e.key === 'd') {
+    const oldDirX = dirX;
+    dirX = dirX * Math.cos(-rotSpeed) - dirY * Math.sin(-rotSpeed);
+    dirY = oldDirX * Math.sin(-rotSpeed) + dirY * Math.cos(-rotSpeed);
+
+    const oldPlaneX = planeX;
+    planeX = planeX * Math.cos(-rotSpeed) - planeY * Math.sin(-rotSpeed);
+    planeY = oldPlaneX * Math.sin(-rotSpeed) + planeY * Math.cos(-rotSpeed);
+  }
+  
+  if (e.key === 'a') {
+    const oldDirX = dirX;
+    dirX = dirX * Math.cos(rotSpeed) - dirY * Math.sin(rotSpeed);
+    dirY = oldDirX * Math.sin(rotSpeed) + dirY * Math.cos(rotSpeed);
+
+    const oldPlaneX = planeX;
+    planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
+    planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
+
+  }
+});
 
 window.requestAnimationFrame(loop);

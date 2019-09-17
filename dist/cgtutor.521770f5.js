@@ -144,7 +144,7 @@ var planeY = 0.66;
 var time = 0;
 var oldTime = 0;
 var cameraX, rayDirX, rayDirY;
-var w = 400;
+var w = 800;
 var h = 400;
 
 var update = function update() {
@@ -253,20 +253,63 @@ var update = function update() {
         }
     }
 
+    if (side === 1) {
+      color = 'gray';
+    }
+
     ctx.save();
-    ctx.translate(x * 10, drawStart);
+    console.log(drawEnd);
+    ctx.translate(x * 1, drawStart);
     ctx.moveTo(0, 0);
     ctx.fillStyle = color;
-    ctx.rect(0, 0, x * 10, drawEnd);
+    ctx.fillRect(0, 0, x * 1, drawEnd);
     ctx.restore();
   }
 };
 
 var loop = function loop() {
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0, 0, 800, 400);
   update();
   window.requestAnimationFrame(loop);
 };
 
+var rotSpeed = 0.1;
+window.addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowUp') {
+    posY += dirY * 0.5;
+  }
+
+  if (e.key === 'ArrowDown') {
+    posY -= dirY * 0.5;
+  }
+
+  if (e.key === 'ArrowRight') {
+    posX += dirX * 0.5;
+  }
+
+  if (e.key === 'ArrowLeft') {
+    posX -= dirX * 0.5;
+  }
+
+  if (e.key === 'd') {
+    var oldDirX = dirX;
+    dirX = dirX * Math.cos(-rotSpeed) - dirY * Math.sin(-rotSpeed);
+    dirY = oldDirX * Math.sin(-rotSpeed) + dirY * Math.cos(-rotSpeed);
+    var oldPlaneX = planeX;
+    planeX = planeX * Math.cos(-rotSpeed) - planeY * Math.sin(-rotSpeed);
+    planeY = oldPlaneX * Math.sin(-rotSpeed) + planeY * Math.cos(-rotSpeed);
+  }
+
+  if (e.key === 'a') {
+    var _oldDirX = dirX;
+    dirX = dirX * Math.cos(rotSpeed) - dirY * Math.sin(rotSpeed);
+    dirY = _oldDirX * Math.sin(rotSpeed) + dirY * Math.cos(rotSpeed);
+    var _oldPlaneX = planeX;
+    planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
+    planeY = _oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
+  }
+});
 window.requestAnimationFrame(loop);
 },{"./map":"map.js"}],"../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
