@@ -164,7 +164,7 @@ var update = function update() {
 
     var deltaDistX = Math.abs(1 / rayDirX);
     var deltaDistY = Math.abs(1 / rayDirY);
-    var prepWallDist = void 0; // direction of step
+    var perpWallDist = void 0; // direction of step
 
     var stepX = void 0;
     var stepY = void 0;
@@ -208,13 +208,14 @@ var update = function update() {
 
 
     if (side === 0) {
-      prepWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
+      perpWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
     } else {
-      prepWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
-    } // Calculate col height;
+      perpWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
+    }
 
+    console.log(perpWallDist); // Calculate col height;
 
-    var lineHeight = h / prepWallDist; // calculate lowest and highest pixel;
+    var lineHeight = h / perpWallDist; // calculate lowest and highest pixel;
 
     var drawStart = -lineHeight / 2 + h / 2;
     if (drawStart < 0) drawStart = 0;
@@ -226,43 +227,50 @@ var update = function update() {
       case 1:
         {
           color = 'red';
+
+          if (side === 1) {
+            color = 'salmon';
+          }
+
           break;
         }
 
       case 2:
         {
           color = 'green';
+
+          if (side === 1) {
+            color = 'springgreen';
+          }
+
           break;
         }
 
       case 3:
         {
           color = 'blue';
+
+          if (side === 1) {
+            color = 'skyblue';
+          }
+
           break;
         }
 
       case 4:
         {
           color = 'white';
+
+          if (side === 1) {
+            color = 'whitesmoke';
+          }
+
           break;
         }
-
-      default:
-        {
-          color = 'yellow';
-        }
     }
 
-    if (side === 1) {
-      color = 'gray';
-    }
-
-    ctx.save();
-    ctx.translate(x * 1, drawStart);
-    ctx.moveTo(0, 0);
     ctx.fillStyle = color;
-    ctx.fillRect(0, -drawStart / 2, 1, drawEnd);
-    ctx.restore();
+    ctx.fillRect(x, drawStart, 1, drawEnd - 20);
   }
 };
 
@@ -275,20 +283,14 @@ var loop = function loop() {
 
 var rotSpeed = 0.1;
 window.addEventListener('keydown', function (e) {
-  if (e.key === 'ArrowUp') {
-    posY += dirY * 0.5;
+  if (e.key === 'w') {
+    posY += dirY * 0.2;
+    posX += dirX * 0.2;
   }
 
-  if (e.key === 'ArrowDown') {
-    posY -= dirY * 0.5;
-  }
-
-  if (e.key === 'ArrowRight') {
-    posX += dirX * 0.5;
-  }
-
-  if (e.key === 'ArrowLeft') {
-    posX -= dirX * 0.5;
+  if (e.key === 's') {
+    posY -= dirY * 0.2;
+    posX -= dirX * 0.2;
   }
 
   if (e.key === 'd') {
