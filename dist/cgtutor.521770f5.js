@@ -207,7 +207,7 @@ var update = function update() {
     // Calculate distance projected on camera
 
 
-    if (side = 0) {
+    if (side === 0) {
       prepWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
     } else {
       prepWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
@@ -258,11 +258,10 @@ var update = function update() {
     }
 
     ctx.save();
-    console.log(drawEnd);
     ctx.translate(x * 1, drawStart);
     ctx.moveTo(0, 0);
     ctx.fillStyle = color;
-    ctx.fillRect(0, 0, x * 1, drawEnd);
+    ctx.fillRect(0, -drawStart / 2, 1, drawEnd);
     ctx.restore();
   }
 };
@@ -311,7 +310,7 @@ window.addEventListener('keydown', function (e) {
   }
 });
 window.requestAnimationFrame(loop);
-},{"./map":"map.js"}],"../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./map":"map.js"}],"../../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -339,7 +338,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59383" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60098" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -514,5 +513,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","cgtutor.js"], null)
+},{}]},{},["../../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","cgtutor.js"], null)
 //# sourceMappingURL=/cgtutor.521770f5.js.map

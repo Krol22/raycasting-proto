@@ -89,7 +89,7 @@ const update = () => {
     // ------- DDA DONE -------
 
     // Calculate distance projected on camera
-    if (side = 0) {
+    if (side === 0) {
       prepWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
     } else {
       prepWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
@@ -133,11 +133,10 @@ const update = () => {
     }
 
     ctx.save();
-    console.log(drawEnd);
     ctx.translate(x * 1, drawStart);
     ctx.moveTo(0, 0);
     ctx.fillStyle = color;
-    ctx.fillRect(0, 0, x * 1, drawEnd);
+    ctx.fillRect(0, -drawStart / 2, 1, drawEnd);
     ctx.restore();
   }
 };
