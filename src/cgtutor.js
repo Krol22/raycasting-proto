@@ -18,6 +18,8 @@ let oldTime = 0;
 
 let cameraX, rayDirX, rayDirY;
 
+let image;
+
 let w = 800;
 let h = 400;
 
@@ -142,6 +144,20 @@ const update = () => {
 
     ctx.fillStyle = color;
     ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+
+    let wallX
+    if (side === 0) {
+      wallX = posY + perpWallDist * rayDirY;
+    } else {
+      wallX = posX + perpWallDist * rayDirX;
+    }
+
+    wallX -= Math.floor(wallX);
+
+    let textureSize = 16;
+    let textureX = Math.floor(wallX * textureSize);
+
+    ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawStart, 1, lineHeight);
   }
 };
 
@@ -186,4 +202,18 @@ window.addEventListener('keydown', e => {
   }
 });
 
-window.requestAnimationFrame(loop);
+const loadAsset = (src) => {
+  return new Promise(resolve => {
+    const asset = new Image();
+    asset.src = src;
+    asset.onload = () => {
+      resolve(asset);
+    }
+  });
+}
+
+loadAsset('Wall.png').then((asset) => {
+  image = asset
+  window.requestAnimationFrame(loop);
+
+})
