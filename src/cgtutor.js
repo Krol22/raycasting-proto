@@ -3,6 +3,10 @@ import { map } from '../map';
 // const MAP_WIDTH = 24;
 // const MAP_HEIGHT = 24;
 //
+const mapValue = (input, a, b, c, d) => {
+  return c + ((d - c) / (b - a)) * (input - a);
+};
+
 const ctx = document.querySelector('#game-canvas').getContext('2d');
 ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
@@ -149,6 +153,7 @@ const update = () => {
     ctx.fillStyle = color;
     ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
 
+    // WALL TEXTURES
     let wallX
     if (side === 0) {
       wallX = posY + perpWallDist * rayDirY;
@@ -162,6 +167,11 @@ const update = () => {
     let textureX = Math.floor(wallX * textureSize);
 
     ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawStart, 1, lineHeight);
+
+    // FOG
+    const value = mapValue(perpWallDist, 0, 15, 0, 0.5);
+    ctx.fillStyle = `rgba(0, 0, 0, ${value})`;
+    ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
   }
 };
 
