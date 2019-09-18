@@ -80,6 +80,7 @@ const update = () => {
       sideDistY = (mapY + 1 - posY) * deltaDistY;
     } 
 
+    const hitWalls = [];
     // Actual DDA
     while (true) {
       if (sideDistX < sideDistY) {
@@ -95,83 +96,108 @@ const update = () => {
       }
 
       if (map[mapX][mapY] > 0) {
-        break;
+        hitWalls.push({
+          mapX,
+          mapY,
+          side,
+          value: map[mapX][mapY],
+        });
+        if (map[mapX][mapY] === 1) {
+          break;
+        }
       }
     }
 
     // ------- DDA DONE -------
 
     // Calculate distance projected on camera
-    if (side === 0) {
-      perpWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
-    } else {
-      perpWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
-    }
-
-    // Calculate col height;
-    let lineHeight = Math.floor(Math.abs(h / perpWallDist));
-
-    // calculate lowest and highest pixel;
-    let drawStart = -lineHeight / 2 + h / 2;
-    // if (drawStart < 0) drawStart = 0;
-    drawStart += offset;
-
-    const drawEnd = drawStart + lineHeight;
-
-    let color;
-    switch(map[mapX][mapY]) {
-      case(1): {
-        color= 'red';
-        if (side === 1) {
-          color = 'salmon';
-        }
-        break;
+    hitWalls.reverse().forEach(({mapX, mapY, side, value}) => {
+      if (side === 0) {
+        perpWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
+      } else {
+        perpWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
       }
-      case(2): {
-        color= 'green';
-        if (side === 1) {
-          color = 'springgreen';
-        }
-        break;
-      }
-      case(3): {
-        color= 'blue';
-        if (side === 1) {
-          color = 'skyblue';
-        }
-        break;
-      }
-      case(4): {
-        color= 'white';
-        if (side === 1) {
-          color = 'whitesmoke';
-        }
-        break;
-      }
-    }
 
-    ctx.fillStyle = color;
-    ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+      // if (value === 3) {
+        // perpWallDist = perpWallDist * 4;
+      // }
 
+      // Calculate col height;
+      let lineHeight = Math.floor(Math.abs(h / perpWallDist));
+
+      // calculate lowest and highest pixel;
+      let drawStart = h / 2 + lineHeight / 2 ;
+      let drawEnd = drawStart - lineHeight;
+      // if (drawStart < 0) drawStart = 0;
+
+      if (value === 3) {
+        drawStart = h / 2 + lineHeight / 2;
+        drawEnd = drawStart - lineHeight / value; 
+      }
+
+      if (value === 2) {
+        drawStart = h / 2 + lineHeight / 2;
+        drawEnd = drawStart - lineHeight * value * 1.2; 
+      }
+      // let drawEnd = drawStart - 5 * 10 + 20;
+      // if (value === 3) {
+      // }
+
+      let color;
+      switch(map[mapX][mapY]) {
+        case(1): {
+          color= 'red';
+          if (side === 1) {
+            color = 'salmon';
+          }
+          break;
+        }
+        case(2): {
+          color= 'green';
+          if (side === 1) {
+            color = 'springgreen';
+          }
+          break;
+        }
+        case(3): {
+          color= 'blue';
+          if (side === 1) {
+            color = 'skyblue';
+          }
+          break;
+        }
+        case(4): {
+          color= 'white';
+          if (side === 1) {
+            color = 'whitesmoke';
+          }
+          break;
+        }
+      }
+
+      ctx.fillStyle = color;
+      ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+
+    });
     // WALL TEXTURES
-    let wallX
-    if (side === 0) {
-      wallX = posY + perpWallDist * rayDirY;
-    } else {
-      wallX = posX + perpWallDist * rayDirX;
-    }
-
-    wallX -= Math.floor(wallX);
-
-    let textureSize = 15;
-    let textureX = Math.floor(wallX * textureSize);
-
-    ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawStart, 1, lineHeight);
+    // let wallX
+    // if (side === 0) {
+      // wallX = posY + perpWallDist * rayDirY;
+    // } else {
+      // wallX = posX + perpWallDist * rayDirX;
+    // }
+//
+    // wallX -= Math.floor(wallX);
+//
+    // let textureSize = 15;
+    // let textureX = Math.floor(wallX * textureSize);
+//
+    // ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawStart, 1, lineHeight);
 
     // FOG
-    const value = mapValue(perpWallDist, 0, 15, 0, 0.5);
-    ctx.fillStyle = `rgba(0, 0, 0, ${value})`;
-    ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+    // const value = mapValue(perpWallDist, 0, 15, 0, 0.5);
+    // ctx.fillStyle = `rgba(0, 0, 0, ${value})`;
+    // ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
   }
 };
 
