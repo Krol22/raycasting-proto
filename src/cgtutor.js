@@ -1,21 +1,23 @@
 import { map } from '../map';
 
-const MAP_WIDTH = 24;
-const MAP_HEIGHT = 24;
-
+// const MAP_WIDTH = 24;
+// const MAP_HEIGHT = 24;
+//
 const ctx = document.querySelector('#game-canvas').getContext('2d');
+ctx.webkitImageSmoothingEnabled = false;
+ctx.mozImageSmoothingEnabled = false;
 
 let posX = 22;
-let posY = 12;
+let posY = 10;
 let dirX = -1;
 let dirY = 0;
 
 let planeX = 0;
 let planeY = 0.66;
 
-let time = 0;
-let oldTime = 0;
-
+// let time = 0;
+// let oldTime = 0;
+//
 let cameraX, rayDirX, rayDirY;
 
 let image;
@@ -73,7 +75,7 @@ const update = () => {
     } 
 
     // Actual DDA
-    while (!hit) {
+    while (true) {
       if (sideDistX < sideDistY) {
         sideDistX += deltaDistX;
         mapX += stepX;
@@ -87,7 +89,7 @@ const update = () => {
       }
 
       if (map[mapX][mapY] > 0) {
-        hit = true;
+        break;
       }
     }
 
@@ -105,10 +107,9 @@ const update = () => {
 
     // calculate lowest and highest pixel;
     let drawStart = -lineHeight / 2 + h / 2;
-    if (drawStart < 0) drawStart = 0;
+    // if (drawStart < 0) drawStart = 0;
 
-    let drawEnd = lineHeight / 2 + h / 2;
-    if (drawEnd >= h) drawEnd = h - 1;
+    const drawEnd = drawStart + lineHeight;
 
     let color;
     switch(map[mapX][mapY]) {
@@ -154,7 +155,7 @@ const update = () => {
 
     wallX -= Math.floor(wallX);
 
-    let textureSize = 16;
+    let textureSize = 15;
     let textureX = Math.floor(wallX * textureSize);
 
     ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawStart, 1, lineHeight);

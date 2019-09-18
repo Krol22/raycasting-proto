@@ -8,9 +8,13 @@
 </head>
 <body>
   <style>
+    html {
+      image-rendering: crisp-edges;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+    }
     #game-canvas {
       border: 3px solid black;
-      image-rendering: crisp-edges;
     }
   </style>
   <canvas id="game-canvas" width="800" height="400"></canvas>
