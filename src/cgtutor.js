@@ -12,6 +12,8 @@ let posY = 10;
 let dirX = -1;
 let dirY = 0;
 
+let offset = 0;
+
 let planeX = 0;
 let planeY = 0.66;
 
@@ -108,6 +110,7 @@ const update = () => {
     // calculate lowest and highest pixel;
     let drawStart = -lineHeight / 2 + h / 2;
     // if (drawStart < 0) drawStart = 0;
+    drawStart += offset;
 
     const drawEnd = drawStart + lineHeight;
 
@@ -200,6 +203,14 @@ window.addEventListener('keydown', e => {
     planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
     planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
 
+  }
+
+  if (e.key === 'q') {
+    offset += 10;
+  } 
+
+  if (e.key === 'z') {
+    offset -= 10;
   }
 });
 
