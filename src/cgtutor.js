@@ -178,26 +178,27 @@ const update = () => {
       ctx.fillStyle = color;
       ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
 
+      let wallX
+      if (side === 0) {
+        wallX = posY + perpWallDist * rayDirY;
+      } else {
+        wallX = posX + perpWallDist * rayDirX;
+      }
+
+      wallX -= Math.floor(wallX);
+
+      let textureSize = 15;
+      let textureX = Math.floor(wallX * textureSize);
+
+      ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight);
+
+      const val2 = mapValue(perpWallDist, 0, 15, 0, 0.5);
+      ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
+      ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
     });
     // WALL TEXTURES
-    // let wallX
-    // if (side === 0) {
-      // wallX = posY + perpWallDist * rayDirY;
-    // } else {
-      // wallX = posX + perpWallDist * rayDirX;
-    // }
-//
-    // wallX -= Math.floor(wallX);
-//
-    // let textureSize = 15;
-    // let textureX = Math.floor(wallX * textureSize);
-//
-    // ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawStart, 1, lineHeight);
 
     // FOG
-    // const value = mapValue(perpWallDist, 0, 15, 0, 0.5);
-    // ctx.fillStyle = `rgba(0, 0, 0, ${value})`;
-    // ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
   }
 };
 
