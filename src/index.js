@@ -25,6 +25,29 @@ let planeY = 0.66;
 // let time = 0;
 // let oldTime = 0;
 //
+
+let floorImageData;
+
+const getImageData = image => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = image.width;
+  canvas.height = image.height;
+
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(image, 0, 0);
+  return ctx.getImageData(0, 0, image.width, image.height);
+};
+
+let textureImageData;
+
+function addPixelToImageData(sourceData, sourceIndex, dest, destIndex) {
+  dest.data[destIndex] = sourceData.data[sourceIndex];
+  dest.data[destIndex + 1] = sourceData.data[sourceIndex + 1];
+  dest.data[destIndex + 2] = sourceData.data[sourceIndex + 2];
+  dest.data[destIndex + 3] = 255;
+}
+
 let cameraX, rayDirX, rayDirY;
 
 let image;
@@ -188,7 +211,7 @@ const update = () => {
 
       wallX -= Math.floor(wallX);
 
-      let textureSize = 15;
+      let textureSize = 16;
       let textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
 //
       // if (value === 2) {
@@ -216,30 +239,34 @@ const update = () => {
         floorYWall = mapY + 1.0;
       }
 
-      textureSize = 64;
+      textureSize = 16;
 
-      for (let y = drawStart; y < h; y++) {
+      for (let y = Math.floor(drawStart); y < h; y++) {
         let currentDist = h / (2 * y - h);
         let weight = currentDist / perpWallDist;
-//
-        let currentFloorX = (weight * floorXWall + (1 - weight) * posX)
-        let currentFloorY = (weight * floorYWall + (1 - weight) * posY)
+
+        let currentFloorX = (weight * floorXWall + (1 - weight) * posX);
+        let currentFloorY = (weight * floorYWall + (1 - weight) * posY);
 
         let floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
         let floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
 
-        ctx.drawImage(image, floorTexX, floorTexY, 1, 1, Math.floor(x), Math.floor(y), 1, 1);
-        ctx.drawImage(image, floorTexX, floorTexY, 1, 1, Math.floor(x), h - Math.floor(y), 1, 1);
+        // ctx.drawImage(image, floorTexX, floorTexY, 1, 1, Math.floor(x), Math.floor(y), 1, 1);
+        // ctx.drawImage(image, floorTexX, floorTexY, 1, 1, Math.floor(x), h - Math.floor(y), 1, 1);
+        // const sourceIndex = ((textureSize * floorTexY))
+        const sourceIndex = ((textureSize * floorTexY) + floorTexX) * 4;
+        const destFloorIndex = (w * y + x) * 4;
+        addPixelToImageData(textureImageData, sourceIndex, floorImageData, destFloorIndex);
 
-        const val2 = mapValue(currentDist, 0, 15, 0, 1);
-        ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
-        ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
-        ctx.fillRect(Math.floor(x), h - Math.floor(y), 1, 1);
+        // const val2 = mapValue(currentDist, 0, 15, 0, 1);
+        // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
+        // ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
+        // ctx.fillRect(Math.floor(x), h - Math.floor(y), 1, 1);
       }
 
-      const val2 = mapValue(perpWallDist, 0, 15, 0, 1);
-      ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
-      ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+      // const val2 = mapValue(perpWallDist, 0, 15, 0, 1);
+      // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
+      // ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
     });
   }
 };
@@ -247,7 +274,11 @@ const update = () => {
 const loop = () => {
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, 800, 400);
+  ctx.save();
+  floorImageData = new ImageData(w, h);
   update(); 
+  ctx.restore();
+  ctx.putImageData(floorImageData, 0, 0);
   window.requestAnimationFrame(loop);
 };
 
@@ -301,10 +332,10 @@ const loadAsset = (src) => {
       resolve(asset);
     }
   });
-}
+};
 
 loadAsset('Wall.png').then((asset) => {
-  image = asset
+  image = asset;
+  textureImageData = getImageData(image);
   window.requestAnimationFrame(loop);
-
-})
+});
