@@ -10,6 +10,7 @@ const mapValue = (input, a, b, c, d) => {
 const ctx = document.querySelector('#game-canvas').getContext('2d');
 ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
+ctx.imageSmoothingEnabled = false;
 
 let posX = 22;
 let posY = 10;
@@ -102,9 +103,9 @@ const update = () => {
           side,
           value: map[mapX][mapY],
         });
-        if (map[mapX][mapY] === 1) {
+        // if (map[mapX][mapY] === 1) {
           break;
-        }
+        // }
       }
     }
 
@@ -130,15 +131,15 @@ const update = () => {
       let drawEnd = drawStart - lineHeight;
       // if (drawStart < 0) drawStart = 0;
 
-      if (value === 3) {
-        drawStart = h / 2 + lineHeight / 2;
-        drawEnd = drawStart - lineHeight / value; 
-      }
-
-      if (value === 2) {
-        drawStart = h / 2 + lineHeight / 2;
-        drawEnd = drawStart - lineHeight * value * 1.2; 
-      }
+      // if (value === 3) {
+        // drawStart = h / 2 + lineHeight / 2;
+        // drawEnd = drawStart - lineHeight / value;
+      // }
+//
+      // if (value === 2) {
+        // drawStart = h / 2 + lineHeight / 2;
+        // drawEnd = drawStart - lineHeight * value * 1.2;
+      // }
       // let drawEnd = drawStart - 5 * 10 + 20;
       // if (value === 3) {
       // }
@@ -188,19 +189,56 @@ const update = () => {
       wallX -= Math.floor(wallX);
 
       let textureSize = 15;
-      let textureX = Math.floor(wallX * textureSize);
+      let textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
+//
+      // if (value === 2) {
+        // ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight * 1.2 * value);
+      // } else if (value === 3) {
+        // ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight / value);
+      // } else {
+      ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight);
+      // }
 
-      if (value === 2) {
-        ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight * 1.2 * value);
-      } else if (value === 3) {
-        ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight / value);
+      // const val2 = mapValue(perpWallDist, 0, 15, 0, 0.5);
+      // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
+      // ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+
+      let floorXWall; 
+      let floorYWall;
+
+      if(side === 0 && rayDirX > 0) {
+        floorXWall = mapX;
+        floorYWall = mapY + wallX;
+      } else if(side === 0 && rayDirX < 0) {
+        floorXWall = mapX + 1.0;
+        floorYWall = mapY + wallX;
+      } else if(side === 1 && rayDirY > 0) {
+        floorXWall = mapX + wallX;
+        floorYWall = mapY;
       } else {
-        ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight);
+        floorXWall = mapX + wallX;
+        floorYWall = mapY + 1.0;
       }
 
-      const val2 = mapValue(perpWallDist, 0, 15, 0, 0.5);
-      ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
-      ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+      textureSize = 64;
+
+      for (let y = drawStart; y < h; y++) {
+        let currentDist = h / (2 * y - h);
+        let weight = currentDist / perpWallDist;
+//
+        let currentFloorX = (weight * floorXWall + (1 - weight) * posX)
+        let currentFloorY = (weight * floorYWall + (1 - weight) * posY)
+
+        let floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
+        let floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
+
+        // const sourceIndex = ((imgTextures.width * floorTexY) + floorTexX) * 4
+        // const destFloorIndex = (w * y + x) * 4;
+          // ctx.fillStyle = 'red';
+          // ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
+          ctx.drawImage(image, floorTexX, floorTexY, 1, 1, Math.floor(x), Math.floor(y), 1, 1);
+      }
+
     });
     // WALL TEXTURES
 
