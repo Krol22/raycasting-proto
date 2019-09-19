@@ -1,4 +1,4 @@
-import { map } from '../map';
+import { map } from './map';
 
 // const MAP_WIDTH = 24;
 // const MAP_HEIGHT = 24;
@@ -190,7 +190,13 @@ const update = () => {
       let textureSize = 15;
       let textureX = Math.floor(wallX * textureSize);
 
-      ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight);
+      if (value === 2) {
+        ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight * 1.2 * value);
+      } else if (value === 3) {
+        ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight / value);
+      } else {
+        ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight);
+      }
 
       const val2 = mapValue(perpWallDist, 0, 15, 0, 0.5);
       ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
