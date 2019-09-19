@@ -8,6 +8,7 @@ const mapValue = (input, a, b, c, d) => {
 };
 
 const ctx = document.querySelector('#game-canvas').getContext('2d');
+const floorCtx = document.querySelector('#floor-canvas').getContext('2d');
 ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
@@ -26,7 +27,7 @@ let planeY = 0.66;
 // let oldTime = 0;
 //
 
-let floorImageData;
+let rayCastingImageData;
 
 const getImageData = image => {
   const canvas = document.createElement('canvas');
@@ -126,9 +127,9 @@ const update = () => {
           side,
           value: map[mapX][mapY],
         });
-        // if (map[mapX][mapY] === 1) {
+        if (map[mapX][mapY] !== 3) {
           break;
-        // }
+        }
       }
     }
 
@@ -154,10 +155,10 @@ const update = () => {
       let drawEnd = drawStart - lineHeight;
       // if (drawStart < 0) drawStart = 0;
 
-      // if (value === 3) {
-        // drawStart = h / 2 + lineHeight / 2;
-        // drawEnd = drawStart - lineHeight / value;
-      // }
+      if (value === 3) {
+        drawStart = h / 2 + lineHeight / 2;
+        drawEnd = drawStart - lineHeight / value;
+      }
 //
       // if (value === 2) {
         // drawStart = h / 2 + lineHeight / 2;
@@ -199,8 +200,6 @@ const update = () => {
         }
       }
 
-      ctx.fillStyle = color;
-      ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
 
       let wallX
       if (side === 0) {
@@ -214,13 +213,16 @@ const update = () => {
       let textureSize = 16;
       let textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
 //
+      ctx.fillStyle = color;
+      ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+
       // if (value === 2) {
         // ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight * 1.2 * value);
-      // } else if (value === 3) {
-        // ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight / value);
-      // } else {
-      ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight);
-      // }
+      if (value === 3) {
+        ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight / value);
+      } else {
+        ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight);
+      }
 
       let floorXWall; 
       let floorYWall;
@@ -251,12 +253,12 @@ const update = () => {
         let floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
         let floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
 
-        // ctx.drawImage(image, floorTexX, floorTexY, 1, 1, Math.floor(x), Math.floor(y), 1, 1);
-        // ctx.drawImage(image, floorTexX, floorTexY, 1, 1, Math.floor(x), h - Math.floor(y), 1, 1);
-        // const sourceIndex = ((textureSize * floorTexY))
         const sourceIndex = ((textureSize * floorTexY) + floorTexX) * 4;
+
         const destFloorIndex = (w * y + x) * 4;
-        addPixelToImageData(textureImageData, sourceIndex, floorImageData, destFloorIndex);
+        const destCeilIndex = (w * (h - y) + x) * 4;
+        addPixelToImageData(textureImageData, sourceIndex, rayCastingImageData, destFloorIndex);
+        addPixelToImageData(textureImageData, sourceIndex, rayCastingImageData, destCeilIndex);
 
         // const val2 = mapValue(currentDist, 0, 15, 0, 1);
         // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
@@ -272,13 +274,13 @@ const update = () => {
 };
 
 const loop = () => {
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, 800, 400);
+  ctx.clearRect(0, 0, 800, 400);
+  floorCtx.clearRect(0, 0, 800, 400);
   ctx.save();
-  floorImageData = new ImageData(w, h);
+  rayCastingImageData = new ImageData(w, h);
   update(); 
   ctx.restore();
-  ctx.putImageData(floorImageData, 0, 0);
+  floorCtx.putImageData(rayCastingImageData, 0, 0);
   window.requestAnimationFrame(loop);
 };
 
