@@ -41,12 +41,14 @@ const getImageData = image => {
 };
 
 let textureImageData;
+let floorImageData;
+let celingImageData;
 
-function addPixelToImageData(sourceData, sourceIndex, dest, destIndex) {
+function addPixelToImageData(sourceData, sourceIndex, dest, destIndex, alpha) {
   dest.data[destIndex] = sourceData.data[sourceIndex];
   dest.data[destIndex + 1] = sourceData.data[sourceIndex + 1];
   dest.data[destIndex + 2] = sourceData.data[sourceIndex + 2];
-  dest.data[destIndex + 3] = 255;
+  dest.data[destIndex + 3] = alpha;
 }
 
 let cameraX, rayDirX, rayDirY;
@@ -255,20 +257,22 @@ const update = () => {
 
         const sourceIndex = ((textureSize * floorTexY) + floorTexX) * 4;
 
+        const alpha = mapValue(currentDist, 0, 8, 255, 0);
+
         const destFloorIndex = (w * y + x) * 4;
         const destCeilIndex = (w * (h - y) + x) * 4;
-        addPixelToImageData(textureImageData, sourceIndex, rayCastingImageData, destFloorIndex);
-        addPixelToImageData(textureImageData, sourceIndex, rayCastingImageData, destCeilIndex);
 
-        // const val2 = mapValue(currentDist, 0, 15, 0, 1);
+        addPixelToImageData(floorImageData, sourceIndex, rayCastingImageData, destFloorIndex, alpha);
+        addPixelToImageData(celingImageData, sourceIndex, rayCastingImageData, destCeilIndex, alpha);
+
         // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
         // ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
         // ctx.fillRect(Math.floor(x), h - Math.floor(y), 1, 1);
       }
 
-      // const val2 = mapValue(perpWallDist, 0, 15, 0, 1);
-      // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
-      // ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+      const val2 = mapValue(perpWallDist, 0, 10, 0, 1);
+      ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
+      ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
     });
   }
 };
@@ -339,5 +343,11 @@ const loadAsset = (src) => {
 loadAsset('Wall.png').then((asset) => {
   image = asset;
   textureImageData = getImageData(image);
+  return loadAsset('Floor.png')
+}).then(asset => {
+  floorImageData = getImageData(asset)
+  return loadAsset('Celling.png')
+}).then(asset => {
+  celingImageData = getImageData(asset);
   window.requestAnimationFrame(loop);
 });
