@@ -199,10 +199,6 @@ const update = () => {
       ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight);
       // }
 
-      // const val2 = mapValue(perpWallDist, 0, 15, 0, 0.5);
-      // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
-      // ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
-
       let floorXWall; 
       let floorYWall;
 
@@ -232,17 +228,19 @@ const update = () => {
         let floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
         let floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
 
-        // const sourceIndex = ((imgTextures.width * floorTexY) + floorTexX) * 4
-        // const destFloorIndex = (w * y + x) * 4;
-          // ctx.fillStyle = 'red';
-          // ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
-          ctx.drawImage(image, floorTexX, floorTexY, 1, 1, Math.floor(x), Math.floor(y), 1, 1);
+        ctx.drawImage(image, floorTexX, floorTexY, 1, 1, Math.floor(x), Math.floor(y), 1, 1);
+        ctx.drawImage(image, floorTexX, floorTexY, 1, 1, Math.floor(x), h - Math.floor(y), 1, 1);
+
+        const val2 = mapValue(currentDist, 0, 15, 0, 1);
+        ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
+        ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
+        ctx.fillRect(Math.floor(x), h - Math.floor(y), 1, 1);
       }
 
+      const val2 = mapValue(perpWallDist, 0, 15, 0, 1);
+      ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
+      ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
     });
-    // WALL TEXTURES
-
-    // FOG
   }
 };
 
