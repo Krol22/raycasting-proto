@@ -13,15 +13,15 @@ ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
 
-let posX = 22;
-let posY = 10;
+let posX = 11;
+let posY = 16;
 let dirX = -1;
 let dirY = 0;
 
 let offset = 0;
 
 let planeX = 0;
-let planeY = 0.66;
+let planeY = 0.96;
 
 // let time = 0;
 // let oldTime = 0;
@@ -123,12 +123,39 @@ const update = () => {
       }
 
       if (map[mapX][mapY] > 0) {
-        hitWalls.push({
-          mapX,
-          mapY,
-          side,
+        let newWall = {
+          mapX, mapY, side,
           value: map[mapX][mapY],
-        });
+        };
+
+        let backWallX = mapX;
+        let backWallY = mapY;
+        let backWallSide;
+
+        if (sideDistX < sideDistY) {
+          // sideDistX += deltaDistX;
+          backWallX += stepX;
+          backWallX = Math.floor(backWallX);
+          backWallSide = 0;
+        } else {
+          // sideDistY += deltaDistY;
+          backWallY += stepY;
+          backWallY = Math.floor(backWallY);
+          backWallSide = 1;
+        }
+
+        let backWall = {
+          mapX: backWallX,
+          mapY: backWallY,
+          side: backWallSide,
+          value: 3,
+        };
+
+        newWall.backWall = backWall;
+
+        hitWalls.push(newWall);
+        hitWalls.push(backWall);
+
         if (map[mapX][mapY] !== 3) {
           break;
         }
@@ -138,16 +165,12 @@ const update = () => {
     // ------- DDA DONE -------
 
     // Calculate distance projected on camera
-    hitWalls.reverse().forEach(({mapX, mapY, side, value}) => {
+    hitWalls.reverse().forEach(({mapX, mapY, side, value, backWall}) => {
       if (side === 0) {
         perpWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
       } else {
         perpWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
       }
-
-      // if (value === 3) {
-        // perpWallDist = perpWallDist * 4;
-      // }
 
       // Calculate col height;
       let lineHeight = Math.floor(Math.abs(h / perpWallDist));
@@ -170,37 +193,37 @@ const update = () => {
       // if (value === 3) {
       // }
 
-      let color;
-      switch(map[mapX][mapY]) {
-        case(1): {
-          color= 'red';
-          if (side === 1) {
-            color = 'salmon';
-          }
-          break;
-        }
-        case(2): {
-          color= 'green';
-          if (side === 1) {
-            color = 'springgreen';
-          }
-          break;
-        }
-        case(3): {
-          color= 'blue';
-          if (side === 1) {
-            color = 'skyblue';
-          }
-          break;
-        }
-        case(4): {
-          color= 'white';
-          if (side === 1) {
-            color = 'whitesmoke';
-          }
-          break;
-        }
-      }
+      // let color;
+      // switch(map[mapX][mapY]) {
+        // case(1): {
+          // color= 'red';
+          // if (side === 1) {
+            // color = 'salmon';
+          // }
+          // break;
+        // }
+        // case(2): {
+          // color= 'green';
+          // if (side === 1) {
+            // color = 'springgreen';
+          // }
+          // break;
+        // }
+        // case(3): {
+          // color= 'blue';
+          // if (side === 1) {
+            // color = 'skyblue';
+          // }
+          // break;
+        // }
+        // case(4): {
+          // color= 'white';
+          // if (side === 1) {
+            // color = 'whitesmoke';
+          // }
+          // break;
+        // }
+      // }
 
 
       let wallX
@@ -215,16 +238,32 @@ const update = () => {
       let textureSize = 16;
       let textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
 //
-      ctx.fillStyle = color;
-      ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
-
       // if (value === 2) {
         // ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight * 1.2 * value);
+      if (value === 3 && backWall) {
+        let backWallPerpWallDist;
+        if (backWall.side === 0) {
+          backWallPerpWallDist = (backWall.mapX - posX + (1 - stepX) / 2) / rayDirX;
+        } else {
+          backWallPerpWallDist = (backWall.mapY - posY + (1 - stepY) / 2) / rayDirY;
+        }
+
+        let backWallFloorLineHeigth = Math.floor(Math.abs(h / backWallPerpWallDist));
+        let floorStart = h / 2 + backWallFloorLineHeigth / 2;
+        let floorEnd = floorStart - backWallFloorLineHeigth / 3;
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(x, floorEnd, 1, drawEnd - floorEnd);
+      }
+
+      // ctx.fillStyle = 'blue';
+      // ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+
       if (value === 3) {
         ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight / value);
       } else {
         ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight);
       }
+
 
       let floorXWall; 
       let floorYWall;
@@ -259,7 +298,15 @@ const update = () => {
 
         const alpha = mapValue(currentDist, 0, 8, 255, 0);
 
-        const destFloorIndex = (w * y + x) * 4;
+        let currY = y;
+
+        // if (value === 3) {
+          // if (y < drawEnd + 250) {
+            // currY -= lineHeight;
+          // }
+        // }
+
+        const destFloorIndex = (w * currY + x) * 4;
         const destCeilIndex = (w * (h - y) + x) * 4;
 
         addPixelToImageData(floorImageData, sourceIndex, rayCastingImageData, destFloorIndex, alpha);
@@ -270,9 +317,9 @@ const update = () => {
         // ctx.fillRect(Math.floor(x), h - Math.floor(y), 1, 1);
       }
 
-      const val2 = mapValue(perpWallDist, 0, 10, 0, 1);
-      ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
-      ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+      // const val2 = mapValue(perpWallDist, 0, 10, 0, 1);
+      // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
+      // ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
     });
   }
 };
