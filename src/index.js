@@ -154,7 +154,6 @@ const update = () => {
         newWall.backWall = backWall;
 
         hitWalls.push(newWall);
-        hitWalls.push(backWall);
 
         if (map[mapX][mapY] !== 3) {
           break;
