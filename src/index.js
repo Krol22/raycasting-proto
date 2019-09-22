@@ -1,7 +1,9 @@
 import { map } from './map';
+import Vector2d from './vector2d';
 
 const MAP_WIDTH = 24;
 const MAP_HEIGHT = 24;
+const textureSize = 16;
 //
 const mapValue = (input, a, b, c, d) => {
   return c + ((d - c) / (b - a)) * (input - a);
@@ -13,21 +15,15 @@ ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
 
-let posX = 11;
-let posY = 16;
-let dirX = -1;
-let dirY = 0;
-
-let offset = 0;
+let playerPos = new Vector2d(11, 16);
+let playerDir = new Vector2d(-1, 0);
 
 let planeX = 0;
 let planeY = 0.96;
 
-// let time = 0;
-// let oldTime = 0;
-//
-
 let rayCastingImageData;
+let floorImageData;
+let celingImageData;
 
 const getImageData = image => {
   const canvas = document.createElement('canvas');
@@ -40,9 +36,6 @@ const getImageData = image => {
   return ctx.getImageData(0, 0, image.width, image.height);
 };
 
-let floorImageData;
-let celingImageData;
-
 function addPixelToImageData(sourceData, sourceIndex, dest, destIndex, alpha) {
   dest.data[destIndex] = sourceData.data[sourceIndex];
   dest.data[destIndex + 1] = sourceData.data[sourceIndex + 1];
@@ -50,53 +43,114 @@ function addPixelToImageData(sourceData, sourceIndex, dest, destIndex, alpha) {
   dest.data[destIndex + 3] = alpha;
 }
 
-function DDA(rayDirX, rayDirY) {
+function drawFloorInLowerWalls(backWall, playerPos, rayDir, stepX, stepY, drawEnd, x) {
+  let backWallPerpWallDist;
+  let backWallMapPos = backWall.mapPos;
+  if (backWall.side === 0) {
+    backWallPerpWallDist = (backWallMapPos.x - playerPos.x + (1 - stepX) / 2) / rayDir.x;
+  } else {
+    backWallPerpWallDist = (backWallMapPos.y - playerPos.y + (1 - stepY) / 2) / rayDir.y;
+  }
+
+  let backWallFloorLineHeigth = Math.floor(Math.abs(resolutionHeight / backWallPerpWallDist));
+  let floorStart = resolutionHeight / 2 + backWallFloorLineHeigth / 2;
+  let floorEnd = floorStart - backWallFloorLineHeigth / 3;
+  ctx.fillStyle = 'blue';
+  ctx.fillRect(x, floorEnd, 1, drawEnd - floorEnd);
+}
+
+function drawFloorAndCeling(mapPos, side, rayDir, wallX, drawStart, perpWallDist, x) {
+  let floorXWall; 
+  let floorYWall;
+
+  if(side === 0 && rayDir.x > 0) {
+    floorXWall = mapPos.x;
+    floorYWall = mapPos.y + wallX;
+  } else if(side === 0 && rayDir.x < 0) {
+    floorXWall = mapPos.x + 1.0;
+    floorYWall = mapPos.y + wallX;
+  } else if(side === 1 && rayDir.y > 0) {
+    floorXWall = mapPos.x + wallX;
+    floorYWall = mapPos.y;
+  } else {
+    floorXWall = mapPos.x + wallX;
+    floorYWall = mapPos.y + 1.0;
+  }
+
+  for (let y = Math.floor(drawStart); y < resolutionHeight; y++) {
+    let currentDist = resolutionHeight / (2 * y - resolutionHeight);
+    let weight = currentDist / perpWallDist;
+
+    let currentFloorX = (weight * floorXWall + (1 - weight) * playerPos.x);
+    let currentFloorY = (weight * floorYWall + (1 - weight) * playerPos.y);
+
+    let floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
+    let floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
+
+    const sourceIndex = ((textureSize * floorTexY) + floorTexX) * 4;
+
+    const alpha = mapValue(currentDist, 0, 8, 255, 0);
+
+    const destFloorIndex = (resolutionWidth * y + x) * 4;
+    const destCeilIndex = (resolutionWidth * (resolutionHeight - y) + x) * 4;
+
+    addPixelToImageData(floorImageData, sourceIndex, rayCastingImageData, destFloorIndex, alpha);
+    addPixelToImageData(celingImageData, sourceIndex, rayCastingImageData, destCeilIndex, alpha);
+
+    // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
+    // ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
+    // ctx.fillRect(Math.floor(x), h - Math.floor(y), 1, 1);
+  }
+}
+
+function DDA(rayDir) {
   const hitWalls = [];
-  let mapX = Math.floor(posX);
-  let mapY = Math.floor(posY);
+  const mapPos = new Vector2d(Math.floor(playerPos.x), Math.floor(playerPos.y));
 
   let sideDistX, sideDistY;
   let side;
   let stepX, stepY;
-  const deltaDistX = Math.sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX));
-  const deltaDistY = Math.sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY));
+
+  const deltaDistX = Math.sqrt(1 + (rayDir.y * rayDir.y) / (rayDir.x * rayDir.x));
+  const deltaDistY = Math.sqrt(1 + (rayDir.x * rayDir.x) / (rayDir.y * rayDir.y));
   
-  if (rayDirX < 0) {
+  if (rayDir.x < 0) {
     stepX = -1;
-    sideDistX = (posX - mapX) * deltaDistX;
+    sideDistX = (playerPos.x - mapPos.x) * deltaDistX;
   } else {
     stepX = 1;
-    sideDistX = (mapX + 1 - posX) * deltaDistX;
+    sideDistX = (mapPos.x + 1 - playerPos.x) * deltaDistX;
   }
-  if (rayDirY < 0) {
+  if (rayDir.y < 0) {
     stepY = -1;
-    sideDistY = (posY - mapY) * deltaDistY;
+    sideDistY = (playerPos.y - mapPos.y) * deltaDistY;
   } else {
     stepY = 1;
-    sideDistY = (mapY + 1 - posY) * deltaDistY;
+    sideDistY = (mapPos.y + 1 - playerPos.y) * deltaDistY;
   } 
 
   while (true) {
     if (sideDistX < sideDistY) {
       sideDistX += deltaDistX;
-      mapX += stepX;
-      mapX = Math.floor(mapX);
+      mapPos.x += stepX;
+      mapPos.x = Math.floor(mapPos.x);
       side = 0;
     } else {
       sideDistY += deltaDistY;
-      mapY += stepY;
-      mapY = Math.floor(mapY);
+      mapPos.y += stepY;
+      mapPos.y = Math.floor(mapPos.y);
       side = 1;
     }
 
-    if (map[mapX][mapY] > 0) {
+    if (map[mapPos.x][mapPos.y] > 0) {
       let newWall = {
-        mapX, mapY, side,
-        value: map[mapX][mapY],
+        mapPos: new Vector2d(mapPos.x, mapPos.y),
+        value: map[mapPos.x][mapPos.y],
+        side,
       };
 
-      let backWallX = mapX;
-      let backWallY = mapY;
+      let backWallX = mapPos.x;
+      let backWallY = mapPos.y;
       let backWallSide;
 
       if (sideDistX < sideDistY) {
@@ -110,17 +164,15 @@ function DDA(rayDirX, rayDirY) {
       }
 
       let backWall = {
-        mapX: backWallX,
-        mapY: backWallY,
+        mapPos: new Vector2d(backWallX, backWallY),
         side: backWallSide,
         value: 3,
       };
 
       newWall.backWall = backWall;
-
       hitWalls.push(newWall);
 
-      if (map[mapX][mapY] !== 3) {
+      if (map[mapPos.x][mapPos.y] !== 3) {
         break;
       }
     }
@@ -129,139 +181,54 @@ function DDA(rayDirX, rayDirY) {
   return [hitWalls, stepX, stepY];
 }
 
-let cameraX, rayDirX, rayDirY;
 let image;
-
-let w = 800;
-let h = 400;
+const resolutionWidth = 800;
+const resolutionHeight = 400;
 
 const update = () => {
-  for (let x = 0; x < w; x++) {
-    cameraX = 2 * x / w - 1; 
+  for (let x = 0; x < resolutionWidth; x++) {
+    const cameraX = 2 * x / resolutionWidth - 1; 
+    const rayDir = new Vector2d(playerDir.x + planeX * cameraX, playerDir.y + planeY * cameraX);
 
-    // get ray direction
-    rayDirX = dirX + planeX * cameraX;
-    rayDirY = dirY + planeY * cameraX;
-
-    let perpWallDist;
-
-    const [hitWalls, stepX, stepY] = DDA(rayDirX, rayDirY);
+    const [hitWalls, stepX, stepY] = DDA(rayDir);
 
     // Calculate distance projected on camera
-    hitWalls.reverse().forEach(({mapX, mapY, side, value, backWall}) => {
+    hitWalls.reverse().forEach(hitWall => {
+      const ray = {};
+      ray.dir = rayDir;
+
+      let { mapPos, side, value, backWall } = hitWall;
+
       if (side === 0) {
-        perpWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
+        ray.perpWallDist = (mapPos.x - playerPos.x + (1 - stepX) / 2) / ray.dir.x;
       } else {
-        perpWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
+        ray.perpWallDist = (mapPos.y - playerPos.y + (1 - stepY) / 2) / ray.dir.y;
       }
 
       // Calculate col height;
-      let lineHeight = Math.floor(Math.abs(h / perpWallDist));
+      let lineHeight = Math.floor(Math.abs(resolutionHeight / ray.perpWallDist));
 
-      // calculate lowest and highest pixel;
-      let drawStart = h / 2 + lineHeight / 2 ;
-      let drawEnd = drawStart - lineHeight;
-      // if (drawStart < 0) drawStart = 0;
-
-      if (value === 3) {
-        drawStart = h / 2 + lineHeight / 2;
-        drawEnd = drawStart - lineHeight / value;
-      }
+      // calculate lowest and highest pixel of wall;
+      ray.drawStart = (resolutionHeight + lineHeight) / 2 ;
+      ray.drawEnd = ray.drawStart - lineHeight / (value === 3 ? value : 1);
 
       let wallX;
       if (side === 0) {
-        wallX = posY + perpWallDist * rayDirY;
+        wallX = playerPos.y + ray.perpWallDist * ray.dir.y;
       } else {
-        wallX = posX + perpWallDist * rayDirX;
+        wallX = playerPos.x + ray.perpWallDist * ray.dir.x;
       }
 
       wallX -= Math.floor(wallX);
 
-      let textureSize = 16;
-      let textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
-//
-      // if (value === 2) {
-        // ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight * 1.2 * value);
       if (value === 3 && backWall) {
-        let backWallPerpWallDist;
-        if (backWall.side === 0) {
-          backWallPerpWallDist = (backWall.mapX - posX + (1 - stepX) / 2) / rayDirX;
-        } else {
-          backWallPerpWallDist = (backWall.mapY - posY + (1 - stepY) / 2) / rayDirY;
-        }
-
-        let backWallFloorLineHeigth = Math.floor(Math.abs(h / backWallPerpWallDist));
-        let floorStart = h / 2 + backWallFloorLineHeigth / 2;
-        let floorEnd = floorStart - backWallFloorLineHeigth / 3;
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(x, floorEnd, 1, drawEnd - floorEnd);
+        drawFloorInLowerWalls(backWall, playerPos, rayDir, stepX, stepY, ray.drawEnd, x);
       }
 
-      // ctx.fillStyle = 'blue';
-      // ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+      let textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
+      ctx.drawImage(image, textureX, 0, 1, textureSize, x, ray.drawEnd, 1, lineHeight / (value === 3 ? value : 1));
 
-      if (value === 3) {
-        ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight / value);
-      } else {
-        ctx.drawImage(image, textureX, 0, 1, textureSize, x, drawEnd, 1, lineHeight);
-      }
-
-
-      let floorXWall; 
-      let floorYWall;
-
-      if(side === 0 && rayDirX > 0) {
-        floorXWall = mapX;
-        floorYWall = mapY + wallX;
-      } else if(side === 0 && rayDirX < 0) {
-        floorXWall = mapX + 1.0;
-        floorYWall = mapY + wallX;
-      } else if(side === 1 && rayDirY > 0) {
-        floorXWall = mapX + wallX;
-        floorYWall = mapY;
-      } else {
-        floorXWall = mapX + wallX;
-        floorYWall = mapY + 1.0;
-      }
-
-      textureSize = 16;
-
-      for (let y = Math.floor(drawStart); y < h; y++) {
-        let currentDist = h / (2 * y - h);
-        let weight = currentDist / perpWallDist;
-
-        let currentFloorX = (weight * floorXWall + (1 - weight) * posX);
-        let currentFloorY = (weight * floorYWall + (1 - weight) * posY);
-
-        let floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
-        let floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
-
-        const sourceIndex = ((textureSize * floorTexY) + floorTexX) * 4;
-
-        const alpha = mapValue(currentDist, 0, 8, 255, 0);
-
-        let currY = y;
-
-        // if (value === 3) {
-          // if (y < drawEnd + 250) {
-            // currY -= lineHeight;
-          // }
-        // }
-
-        const destFloorIndex = (w * currY + x) * 4;
-        const destCeilIndex = (w * (h - y) + x) * 4;
-
-        addPixelToImageData(floorImageData, sourceIndex, rayCastingImageData, destFloorIndex, alpha);
-        addPixelToImageData(celingImageData, sourceIndex, rayCastingImageData, destCeilIndex, alpha);
-
-        // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
-        // ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
-        // ctx.fillRect(Math.floor(x), h - Math.floor(y), 1, 1);
-      }
-
-      // const val2 = mapValue(perpWallDist, 0, 10, 0, 1);
-      // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
-      // ctx.fillRect(x, drawStart, 1, drawEnd - drawStart);
+      drawFloorAndCeling(mapPos, side, ray.dir, wallX, ray.drawStart, ray.perpWallDist, x);
     });
   }
 };
@@ -270,7 +237,7 @@ const loop = () => {
   ctx.clearRect(0, 0, 800, 400);
   floorCtx.clearRect(0, 0, 800, 400);
   ctx.save();
-  rayCastingImageData = new ImageData(w, h);
+  rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);
   update(); 
   ctx.restore();
   floorCtx.putImageData(rayCastingImageData, 0, 0);
@@ -281,18 +248,18 @@ const rotSpeed = 0.1;
 
 window.addEventListener('keydown', e => {
   if (e.key === 'w') {
-    posY += dirY * 0.2;
-    posX += dirX * 0.2;
+    playerPos.y += playerDir.y * 0.2;
+    playerPos.x += playerDir.x * 0.2;
   }
   if (e.key === 's') {
-    posY -= dirY * 0.2;
-    posX -= dirX * 0.2;
+    playerPos.y -= playerDir.y * 0.2;
+    playerPos.x -= playerDir.x * 0.2;
   }
 
   if (e.key === 'd') {
-    const oldDirX = dirX;
-    dirX = dirX * Math.cos(-rotSpeed) - dirY * Math.sin(-rotSpeed);
-    dirY = oldDirX * Math.sin(-rotSpeed) + dirY * Math.cos(-rotSpeed);
+    const oldDirX = playerDir.x;
+    playerDir.x = playerDir.x * Math.cos(-rotSpeed) - playerDir.y * Math.sin(-rotSpeed);
+    playerDir.y = oldDirX * Math.sin(-rotSpeed) + playerDir.y * Math.cos(-rotSpeed);
 
     const oldPlaneX = planeX;
     planeX = planeX * Math.cos(-rotSpeed) - planeY * Math.sin(-rotSpeed);
@@ -300,9 +267,9 @@ window.addEventListener('keydown', e => {
   }
   
   if (e.key === 'a') {
-    const oldDirX = dirX;
-    dirX = dirX * Math.cos(rotSpeed) - dirY * Math.sin(rotSpeed);
-    dirY = oldDirX * Math.sin(rotSpeed) + dirY * Math.cos(rotSpeed);
+    const oldDirX = playerDir.x;
+    playerDir.x = playerDir.x * Math.cos(rotSpeed) - playerDir.y * Math.sin(rotSpeed);
+    playerDir.y = oldDirX * Math.sin(rotSpeed) + playerDir.y * Math.cos(rotSpeed);
 
     const oldPlaneX = planeX;
     planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
@@ -331,7 +298,6 @@ const loadAsset = (src) => {
 
 loadAsset('Wall.png').then((asset) => {
   image = asset;
-  let textureImageData = getImageData(image);
   return loadAsset('Floor.png')
 }).then(asset => {
   floorImageData = getImageData(asset)
