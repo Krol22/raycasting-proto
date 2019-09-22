@@ -1,10 +1,6 @@
 import { map } from './map';
 import Vector2d from './vector2d';
 
-const MAP_WIDTH = 24;
-const MAP_HEIGHT = 24;
-const textureSize = 16;
-//
 const mapValue = (input, a, b, c, d) => {
   return c + ((d - c) / (b - a)) * (input - a);
 };
@@ -14,6 +10,8 @@ const floorCtx = document.querySelector('#floor-canvas').getContext('2d');
 ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
+
+const textureSize = 16;
 
 let playerPos = new Vector2d(11, 16);
 let playerDir = new Vector2d(-1, 0);
@@ -43,13 +41,15 @@ function addPixelToImageData(sourceData, sourceIndex, dest, destIndex, alpha) {
   dest.data[destIndex + 3] = alpha;
 }
 
-function drawFloorInLowerWalls(backWall, playerPos, rayDir, stepX, stepY, drawEnd, x) {
+function drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x) {
+  const { dir, drawEnd } = ray;
+
   let backWallPerpWallDist;
   let backWallMapPos = backWall.mapPos;
   if (backWall.side === 0) {
-    backWallPerpWallDist = (backWallMapPos.x - playerPos.x + (1 - stepX) / 2) / rayDir.x;
+    backWallPerpWallDist = (backWallMapPos.x - playerPos.x + (1 - stepX) / 2) / dir.x;
   } else {
-    backWallPerpWallDist = (backWallMapPos.y - playerPos.y + (1 - stepY) / 2) / rayDir.y;
+    backWallPerpWallDist = (backWallMapPos.y - playerPos.y + (1 - stepY) / 2) / dir.y;
   }
 
   let backWallFloorLineHeigth = Math.floor(Math.abs(resolutionHeight / backWallPerpWallDist));
@@ -59,17 +59,18 @@ function drawFloorInLowerWalls(backWall, playerPos, rayDir, stepX, stepY, drawEn
   ctx.fillRect(x, floorEnd, 1, drawEnd - floorEnd);
 }
 
-function drawFloorAndCeling(mapPos, side, rayDir, wallX, drawStart, perpWallDist, x) {
+function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
+  const { perpWallDist, drawStart, dir } = ray;
   let floorXWall; 
   let floorYWall;
 
-  if(side === 0 && rayDir.x > 0) {
+  if(side === 0 && dir.x > 0) {
     floorXWall = mapPos.x;
     floorYWall = mapPos.y + wallX;
-  } else if(side === 0 && rayDir.x < 0) {
+  } else if(side === 0 && dir.x < 0) {
     floorXWall = mapPos.x + 1.0;
     floorYWall = mapPos.y + wallX;
-  } else if(side === 1 && rayDir.y > 0) {
+  } else if(side === 1 && dir.y > 0) {
     floorXWall = mapPos.x + wallX;
     floorYWall = mapPos.y;
   } else {
@@ -89,17 +90,11 @@ function drawFloorAndCeling(mapPos, side, rayDir, wallX, drawStart, perpWallDist
 
     const sourceIndex = ((textureSize * floorTexY) + floorTexX) * 4;
 
-    const alpha = mapValue(currentDist, 0, 8, 255, 0);
-
     const destFloorIndex = (resolutionWidth * y + x) * 4;
     const destCeilIndex = (resolutionWidth * (resolutionHeight - y) + x) * 4;
 
-    addPixelToImageData(floorImageData, sourceIndex, rayCastingImageData, destFloorIndex, alpha);
-    addPixelToImageData(celingImageData, sourceIndex, rayCastingImageData, destCeilIndex, alpha);
-
-    // ctx.fillStyle = `rgba(0, 0, 0, ${val2})`;
-    // ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
-    // ctx.fillRect(Math.floor(x), h - Math.floor(y), 1, 1);
+    addPixelToImageData(floorImageData, sourceIndex, rayCastingImageData, destFloorIndex, 255);
+    addPixelToImageData(celingImageData, sourceIndex, rayCastingImageData, destCeilIndex, 255);
   }
 }
 
@@ -107,8 +102,8 @@ function DDA(rayDir) {
   const hitWalls = [];
   const mapPos = new Vector2d(Math.floor(playerPos.x), Math.floor(playerPos.y));
 
-  let sideDistX, sideDistY;
   let side;
+  let sideDistX, sideDistY;
   let stepX, stepY;
 
   const deltaDistX = Math.sqrt(1 + (rayDir.y * rayDir.y) / (rayDir.x * rayDir.x));
@@ -221,14 +216,13 @@ const update = () => {
 
       wallX -= Math.floor(wallX);
 
-      if (value === 3 && backWall) {
-        drawFloorInLowerWalls(backWall, playerPos, rayDir, stepX, stepY, ray.drawEnd, x);
-      }
-
       let textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
       ctx.drawImage(image, textureX, 0, 1, textureSize, x, ray.drawEnd, 1, lineHeight / (value === 3 ? value : 1));
+      drawFloorAndCeling(mapPos, side, wallX, ray, x);
+      if (value === 3 && backWall) {
+        drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
+      }
 
-      drawFloorAndCeling(mapPos, side, ray.dir, wallX, ray.drawStart, ray.perpWallDist, x);
     });
   }
 };
