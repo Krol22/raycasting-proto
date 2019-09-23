@@ -6,6 +6,13 @@ const mapValue = (input, a, b, c, d) => {
   return c + ((d - c) / (b - a)) * (input - a);
 };
 
+const objects = [
+  {
+    pos: new Vector2d(11, 18),
+    type: 'AMMO',
+  },
+];
+
 const ctx = document.querySelector('#game-canvas').getContext('2d');
 const floorCtx = document.querySelector('#floor-canvas').getContext('2d');
 ctx.webkitImageSmoothingEnabled = false;
@@ -16,7 +23,7 @@ InputManager.init('#game-canvas');
 
 const textureSize = 16;
 
-let playerPos = new Vector2d(11, 16);
+let playerPos = new Vector2d(12, 18);
 let playerDir = new Vector2d(-1, 0);
 
 let planeX = 0;
@@ -180,13 +187,37 @@ function DDA(rayDir) {
 }
 
 let image;
-const resolutionWidth = 800;
+const resolutionWidth = 200;
 const resolutionHeight = 400;
+
+const drawObjects = (playerPos, rayDir, x) => {
+  objects.forEach(({ pos }) => {
+    const x1 = playerPos.x;
+    const y1 = playerPos.y;
+
+    const x2 = playerPos.x + rayDir.x;
+    const y2 = playerPos.y + rayDir.y;
+
+    const x3 = pos.x;
+    const y3 = pos.y;
+
+    const areInSameLine = (y1 - y2) / (x1 - x2) - (y1 - y3) / (x1 - x3);
+
+    // THIS IS SHITY!!!!!!
+
+    if (areInSameLine < -0.9 && areInSameLine > -1.1) {
+      ctx.fillStyle = 'red';
+      ctx.fillRect(x, 60, 10, 10);
+    }
+  });
+};
 
 const update = () => {
   for (let x = 0; x < resolutionWidth; x++) {
     const cameraX = 2 * x / resolutionWidth - 1; 
     const rayDir = new Vector2d(playerDir.x + planeX * cameraX, playerDir.y + planeY * cameraX);
+
+    drawObjects(playerPos, rayDir, x);
 
     const [hitWalls, stepX, stepY] = DDA(rayDir);
 
