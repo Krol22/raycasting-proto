@@ -1,5 +1,6 @@
 import { map } from './map';
 import Vector2d from './vector2d';
+import { InputManager } from './inputManager';
 
 const mapValue = (input, a, b, c, d) => {
   return c + ((d - c) / (b - a)) * (input - a);
@@ -10,6 +11,8 @@ const floorCtx = document.querySelector('#floor-canvas').getContext('2d');
 ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
+
+InputManager.init('#game-canvas');
 
 const textureSize = 16;
 
@@ -227,6 +230,40 @@ const update = () => {
   }
 };
 
+const rotSpeed = 0.07;
+const movementSpeed = 0.1;
+const playerMovement = () => {
+  if (InputManager.keys[87] && InputManager.keys[87].isDown) {
+    playerPos.y += playerDir.y * movementSpeed;
+    playerPos.x += playerDir.x * movementSpeed;
+  }
+
+  if (InputManager.keys[83] && InputManager.keys[83].isDown) {
+    playerPos.y -= playerDir.y * movementSpeed;
+    playerPos.x -= playerDir.x * movementSpeed;
+  }
+
+  if (InputManager.keys[68] && InputManager.keys[68].isDown) {
+    const oldDirX = playerDir.x;
+    playerDir.x = playerDir.x * Math.cos(-rotSpeed) - playerDir.y * Math.sin(-rotSpeed);
+    playerDir.y = oldDirX * Math.sin(-rotSpeed) + playerDir.y * Math.cos(-rotSpeed);
+
+    const oldPlaneX = planeX;
+    planeX = planeX * Math.cos(-rotSpeed) - planeY * Math.sin(-rotSpeed);
+    planeY = oldPlaneX * Math.sin(-rotSpeed) + planeY * Math.cos(-rotSpeed);
+  }
+
+  if (InputManager.keys[65] && InputManager.keys[65].isDown) {
+    const oldDirX = playerDir.x;
+    playerDir.x = playerDir.x * Math.cos(rotSpeed) - playerDir.y * Math.sin(rotSpeed);
+    playerDir.y = oldDirX * Math.sin(rotSpeed) + playerDir.y * Math.cos(rotSpeed);
+
+    const oldPlaneX = planeX;
+    planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
+    planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
+  }
+};
+
 const loop = () => {
   ctx.clearRect(0, 0, 800, 400);
   floorCtx.clearRect(0, 0, 800, 400);
@@ -236,41 +273,11 @@ const loop = () => {
   ctx.restore();
   floorCtx.putImageData(rayCastingImageData, 0, 0);
   window.requestAnimationFrame(loop);
+
+  playerMovement();
 };
 
-const rotSpeed = 0.1;
-
 window.addEventListener('keydown', e => {
-  if (e.key === 'w') {
-    playerPos.y += playerDir.y * 0.2;
-    playerPos.x += playerDir.x * 0.2;
-  }
-  if (e.key === 's') {
-    playerPos.y -= playerDir.y * 0.2;
-    playerPos.x -= playerDir.x * 0.2;
-  }
-
-  if (e.key === 'd') {
-    const oldDirX = playerDir.x;
-    playerDir.x = playerDir.x * Math.cos(-rotSpeed) - playerDir.y * Math.sin(-rotSpeed);
-    playerDir.y = oldDirX * Math.sin(-rotSpeed) + playerDir.y * Math.cos(-rotSpeed);
-
-    const oldPlaneX = planeX;
-    planeX = planeX * Math.cos(-rotSpeed) - planeY * Math.sin(-rotSpeed);
-    planeY = oldPlaneX * Math.sin(-rotSpeed) + planeY * Math.cos(-rotSpeed);
-  }
-  
-  if (e.key === 'a') {
-    const oldDirX = playerDir.x;
-    playerDir.x = playerDir.x * Math.cos(rotSpeed) - playerDir.y * Math.sin(rotSpeed);
-    playerDir.y = oldDirX * Math.sin(rotSpeed) + playerDir.y * Math.cos(rotSpeed);
-
-    const oldPlaneX = planeX;
-    planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
-    planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
-
-  }
-
   if (e.key === 'q') {
     offset += 10;
   } 
