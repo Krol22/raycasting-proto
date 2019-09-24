@@ -27,7 +27,7 @@ let playerPos = new Vector2d(12, 18);
 let playerDir = new Vector2d(-1, 0);
 
 let planeX = 0;
-let planeY = 0.96;
+let planeY = 0.66;
 
 let rayCastingImageData;
 let floorImageData;
@@ -187,27 +187,15 @@ function DDA(rayDir) {
 }
 
 let image;
-const resolutionWidth = 200;
+const resolutionWidth = 800;
 const resolutionHeight = 400;
 
 const drawObjects = (playerPos, rayDir, x) => {
   objects.forEach(({ pos }) => {
-    const x1 = playerPos.x;
-    const y1 = playerPos.y;
-
-    const x2 = playerPos.x + rayDir.x;
-    const y2 = playerPos.y + rayDir.y;
-
-    const x3 = pos.x;
-    const y3 = pos.y;
-
-    const areInSameLine = (y1 - y2) / (x1 - x2) - (y1 - y3) / (x1 - x3);
-
-    // THIS IS SHITY!!!!!!
-
-    if (areInSameLine < -0.9 && areInSameLine > -1.1) {
+    const angle = Vector2d.findAngle(Vector2d.addVectors(playerPos, rayDir), playerPos, pos);
+    if (angle < Math.PI / 6) {
       ctx.fillStyle = 'red';
-      ctx.fillRect(x, 60, 10, 10);
+      ctx.fillRect(x, 50, 10, 10);
     }
   });
 };
@@ -302,7 +290,7 @@ const loop = () => {
   rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);
   update(); 
   ctx.restore();
-  floorCtx.putImageData(rayCastingImageData, 0, 0);
+  // floorCtx.putImageData(rayCastingImageData, 0, 0);
   window.requestAnimationFrame(loop);
 
   playerMovement();
