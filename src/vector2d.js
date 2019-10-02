@@ -9,6 +9,10 @@ export default class Vector2d {
     this.y += vector.y;
   }
 
+  static addVectors(v0, v1) {
+    return new Vector2d(v0.x + v1.x, v0.y + v1.y);
+  }
+
   sub(vector) {
     this.x -= vector.x;
     this.y -= vector.y;

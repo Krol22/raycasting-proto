@@ -152,10 +152,8 @@ class Ray {
       return;
     }
 
-    return {
-      x: x1 + t * (x2 - x1),
-      y: y1 + t * (y2 - y1)
-    };
+    ctx.fillStyle = 'red';
+    ctx.fillRect(x1 + t * (x2 - x1), y1 + t * (y2 - y1), 10, 10);
   }
 }
 

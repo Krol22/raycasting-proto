@@ -27,7 +27,7 @@ let playerPos = new Vector2d(12, 18);
 let playerDir = new Vector2d(-1, 0);
 
 let planeX = 0;
-let planeY = 0.96;
+let planeY = 0.66;
 
 let rayCastingImageData;
 let floorImageData;
@@ -352,7 +352,7 @@ const loop = () => {
   rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);
   update(); 
   ctx.restore();
-  floorCtx.putImageData(rayCastingImageData, 0, 0);
+  // floorCtx.putImageData(rayCastingImageData, 0, 0);
   window.requestAnimationFrame(loop);
 
   playerMovement();
