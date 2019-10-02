@@ -187,37 +187,84 @@ function DDA(rayDir) {
 }
 
 let image;
-const resolutionWidth = 200;
+const resolutionWidth = 800;
 const resolutionHeight = 400;
 
 const drawObjects = (playerPos, rayDir, x) => {
-  objects.forEach(({ pos }) => {
-    const x1 = playerPos.x;
-    const y1 = playerPos.y;
+  objects.filter(({drawn}) => {
+    return !drawn; 
+  }).forEach((obj) => {
+    const spriteX = obj.pos.x - playerPos.x;
+    const spriteY = obj.pos.y - playerPos.y;
 
-    const x2 = playerPos.x + rayDir.x;
-    const y2 = playerPos.y + rayDir.y;
+    const invDet = 1 / (planeX * rayDir.y - rayDir.x * planeY);
+    const transformX = invDet * (rayDir.y * spriteX - rayDir.x * spriteY);
+    const transformY = invDet * (-planeY * spriteX + planeX * spriteY);
 
-    const x3 = pos.x;
-    const y3 = pos.y;
+    const spriteScreenX = Math.floor((resolutionWidth / 2) * (1 + transformX / transformY));
 
-    const areInSameLine = (y1 - y2) / (x1 - x2) - (y1 - y3) / (x1 - x3);
+    const spriteHeight = Math.abs(Math.floor(resolutionHeight / transformY));
+    let drawStartY = -spriteHeight / 2 + resolutionHeight / 2;
+    if (drawStartY < 0) drawStartY = 0;
+    let drawEndY = spriteHeight / 2 + resolutionHeight / 2;
+    if (drawEndY >= resolutionHeight) drawEndY = resolutionHeight - 1;
 
-    // THIS IS SHITY!!!!!!
+    const spriteWidth = Math.abs(Math.floor(resolutionHeight / transformY));
+    let drawStartX = -spriteWidth / 2 + spriteScreenX;
+    if (drawStartY < 0) drawStartY = 0;
+    let drawEndX = spriteWidth / 2 + spriteScreenX;
+    if (drawEndY >= resolutionHeight) drawEndY = resolutionHeight - 1;
 
-    if (areInSameLine < -0.9 && areInSameLine > -1.1) {
-      ctx.fillStyle = 'red';
-      ctx.fillRect(x, 60, 10, 10);
-    }
+    ctx.fillStyle = 'red';
+    ctx.fillRect(drawStartX, drawStartY, 20, drawEndY - drawStartY);
+
+    // const x1 = playerPos.x;
+    // const y1 = playerPos.y;
+//
+    // const x2 = playerPos.x + rayDir.x;
+    // const y2 = playerPos.y + rayDir.y;
+//
+    // const x3 = obj.pos.x;
+    // const y3 = obj.pos.y;
+//
+    // const areInSameLine = (y1 - y2) / (x1 - x2) - (y1 - y3) / (x1 - x3);
+    // const angle = Vector2d.findAngle(
+      // playerPos,
+      // new Vector2d(playerPos.x + rayDir.x, playerPos.y + rayDir.y),
+      // obj.pos,
+    // );
+//
+    // if (angle < Math.PI) {
+      // ctx.fillStyle = 'red';
+      // ctx.fillRect(x, 60, 10, 10);
+//
+      // ctx.font = '30px Arial';
+      // ctx.fillText(`${(y1 - y2) / (x1 - x2)}`, 10, 80);
+      // ctx.fillText(`${(y1 - y3) / (x1 - x3)}`, 10, 130);
+      // ctx.fillText(`${angle * (180 / Math.PI)}`, 10, 30);
+      // ctx.fillText(`${areInSameLine}`, 10, 30);
+      // ctx.fillText(`${playerPos.x} ${playerPos.y}`, 10, 80);
+      // ctx.fillText(`${playerPos.x + rayDir.x} ${playerPos.y + rayDir.y}`, 10, 130);
+      // ctx.fillText(`${obj.pos.x} ${obj.pos.y}`, 10, 180);
+
+      // const angle = Vector2d.findAngle(
+        // playerPos,
+        // new Vector2d(playerPos.x + rayDir.x, playerPos.y + rayDir.y),
+        // obj.pos,
+      // );
+//
+      // ctx.fillText(`${angle * (180 / Math.PI)}`, 10, 60);
+
+      // obj.drawn = true;
+    // }
   });
 };
 
 const update = () => {
+  objects.forEach(obj => obj.drawn = false);
   for (let x = 0; x < resolutionWidth; x++) {
     const cameraX = 2 * x / resolutionWidth - 1; 
     const rayDir = new Vector2d(playerDir.x + planeX * cameraX, playerDir.y + planeY * cameraX);
-
-    drawObjects(playerPos, rayDir, x);
 
     const [hitWalls, stepX, stepY] = DDA(rayDir);
 
@@ -258,7 +305,10 @@ const update = () => {
       }
 
     });
+
+    drawObjects(playerPos, rayDir, x);
   }
+
 };
 
 const rotSpeed = 0.07;
