@@ -102,22 +102,24 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
   }
 
   for (let y = Math.floor(drawStart); y < resolutionHeight; y++) {
-    let currentDist = resolutionHeight / (2 * y - resolutionHeight);
-    let weight = currentDist / perpWallDist;
+    const currentDist = resolutionHeight / (2 * y - resolutionHeight);
+    const weight = currentDist / perpWallDist;
 
-    let currentFloorX = (weight * floorXWall + (1 - weight) * playerPos.x);
-    let currentFloorY = (weight * floorYWall + (1 - weight) * playerPos.y);
+    const currentFloorX = (weight * floorXWall + (1 - weight) * playerPos.x);
+    const currentFloorY = (weight * floorYWall + (1 - weight) * playerPos.y);
 
-    let floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
-    let floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
+    const floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
+    const floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
 
     const sourceIndex = ((textureSize * floorTexY) + floorTexX) * 4;
 
     const destFloorIndex = (resolutionWidth * y + x) * 4;
     const destCeilIndex = (resolutionWidth * (resolutionHeight - y) + x) * 4;
 
-    addPixelToImageData(floorImageData, sourceIndex, rayCastingImageData, destFloorIndex, 255);
-    addPixelToImageData(celingImageData, sourceIndex, rayCastingImageData, destCeilIndex, 255);
+    const alpha = mapValue(currentDist, 0, 7, 255, 0);
+
+    addPixelToImageData(floorImageData, sourceIndex, rayCastingImageData, destFloorIndex, alpha);
+    addPixelToImageData(celingImageData, sourceIndex, rayCastingImageData, destCeilIndex, alpha);
   }
 }
 
