@@ -6,6 +6,13 @@ const mapValue = (input, a, b, c, d) => {
   return c + ((d - c) / (b - a)) * (input - a);
 };
 
+/*
+
+  Todo: perfo, sorting, 
+  Figure out how values vMove, uDiv, vDiv corelates with each other,
+
+*/
+
 const objects = [
   {
     pos: new Vector2d(11, 18),
