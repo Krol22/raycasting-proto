@@ -43,6 +43,7 @@ let rayCastingImageData;
 let floorImageData;
 let celingImageData;
 let ammoImageData;
+let wallImageData;
 
 const getImageData = image => {
   const canvas = document.createElement('canvas');
@@ -287,19 +288,29 @@ const update = () => {
 
       wallX -= Math.floor(wallX);
 
-      let textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
-      ctx.drawImage(image, textureX, 0, 1, textureSize, x, ray.drawEnd, 1, lineHeight / (value === 3 ? value : 1));
       drawFloorAndCeling(mapPos, side, wallX, ray, x);
+      const textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
+
+      for (let i = 0; i < lineHeight / (value === 3 ? value : 1); i++) {
+        if (Math.floor(ray.drawStart - i) > resolutionHeight) {
+          continue;
+        }
+
+        const textureY = Math.floor(mapValue(i, 0, lineHeight, 0, textureSize));
+        const destIndex = (resolutionWidth * (Math.floor(ray.drawStart) - i) + x) * 4;
+        const sourceIndex = ((textureSize * textureY) + textureX) * 4;
+
+        addPixelToImageData(wallImageData, Math.floor(sourceIndex), rayCastingImageData, Math.floor(destIndex), 255);
+      }
       if (value === 3 && backWall) {
-        drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
+        // drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
       }
 
     });
 
   }
 
-  floorCtx.putImageData(rayCastingImageData, 0, 0);
-  drawObjects(playerPos, playerDir);
+  // drawObjects(playerPos, playerDir);
 };
 
 const rotSpeed = 0.07;
@@ -341,7 +352,8 @@ const loop = () => {
   floorCtx.clearRect(0, 0, 800, 400);
   ctx.save();
   rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);
-  update(); 
+  update();
+  floorCtx.putImageData(rayCastingImageData, 0, 0);
   ctx.restore();
   window.requestAnimationFrame(loop);
 
@@ -370,6 +382,7 @@ const loadAsset = (src) => {
 
 loadAsset('Wall.png').then((asset) => {
   image = asset;
+  wallImageData = getImageData(asset)
   return loadAsset('Floor.png')
 }).then(asset => {
   floorImageData = getImageData(asset)
