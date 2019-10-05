@@ -44,6 +44,7 @@ let floorImageData;
 let celingImageData;
 let ammoImageData;
 let wallImageData;
+let ammoImage;
 
 const getImageData = image => {
   const canvas = document.createElement('canvas');
@@ -237,14 +238,17 @@ const drawObjects = (playerPos, playerDir, x) => {
     let drawEndX = spriteWidth / 2 + spriteScreenX;
     if (drawEndX >= resolutionWidth) drawEndX = resolutionHeight - 1;
 
-    for (let stripe = drawStartX; stripe < drawEndX; stripe++) {
+    for (let stripe = Math.floor(drawStartX); stripe < drawEndX; stripe++) {
       const texX = Math.floor(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
       if (transformY > 0 && stripe > 0 && stripe < resolutionWidth) {
-        for(let y = drawStartY; y < drawEndY; y++) {
+        for(let y = Math.floor(drawStartY); y < drawEndY; y++) {
           const d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
           const texY = ((d * texHeight) / spriteHeight) / 256;
 
-          ctx.drawImage(ammoImageData, Math.floor(texX), Math.floor(texY), 1, 1, stripe, y, 1, 1);
+          const sourceIndex = ((textureSize * Math.floor(texY)) + Math.floor(texX)) * 4;
+          const destIndex = ((resolutionWidth * y) + stripe) * 4;
+
+          addPixelToImageData(ammoImageData, sourceIndex, rayCastingImageData, destIndex, 255);
         }
       }
     }
@@ -303,14 +307,14 @@ const update = () => {
         addPixelToImageData(wallImageData, Math.floor(sourceIndex), rayCastingImageData, Math.floor(destIndex), 255);
       }
       if (value === 3 && backWall) {
-        // drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
+        drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
       }
 
     });
 
   }
 
-  // drawObjects(playerPos, playerDir);
+  drawObjects(playerPos, playerDir);
 };
 
 const rotSpeed = 0.07;
@@ -391,6 +395,7 @@ loadAsset('Wall.png').then((asset) => {
   celingImageData = getImageData(asset)
   return loadAsset('Ammo.png')
 }).then(asset => {
-  ammoImageData = asset;
+  ammoImageData = getImageData(asset);
+  ammoImage = asset;
   window.requestAnimationFrame(loop);
 });
