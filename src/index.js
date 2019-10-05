@@ -10,6 +10,9 @@ const objects = [
   {
     pos: new Vector2d(11, 18),
     type: 'AMMO',
+    vMove: 160,
+    uDiv: 4,
+    vDiv: 4
   },
 ];
 
@@ -32,6 +35,7 @@ let planeY = 0.66;
 let rayCastingImageData;
 let floorImageData;
 let celingImageData;
+let ammoImageData;
 
 const getImageData = image => {
   const canvas = document.createElement('canvas');
@@ -190,73 +194,48 @@ let image;
 const resolutionWidth = 800;
 const resolutionHeight = 400;
 
-const drawObjects = (playerPos, rayDir, x) => {
-  objects.filter(({drawn}) => {
-    return !drawn; 
-  }).forEach((obj) => {
+const drawObjects = (playerPos, playerDir, x) => {
+  objects.forEach((obj) => {
+    const { uDiv = 1, vDiv = 1, vMove = 0 } = obj;
+
     const spriteX = obj.pos.x - playerPos.x;
     const spriteY = obj.pos.y - playerPos.y;
 
-    const invDet = 1 / (planeX * rayDir.y - rayDir.x * planeY);
-    const transformX = invDet * (rayDir.y * spriteX - rayDir.x * spriteY);
+    const invDet = 1 / (planeX * playerDir.y - playerDir.x * planeY);
+    const transformX = invDet * (playerDir.y * spriteX - playerDir.x * spriteY);
     const transformY = invDet * (-planeY * spriteX + planeX * spriteY);
 
     const spriteScreenX = Math.floor((resolutionWidth / 2) * (1 + transformX / transformY));
 
-    const spriteHeight = Math.abs(Math.floor(resolutionHeight / transformY));
-    let drawStartY = -spriteHeight / 2 + resolutionHeight / 2;
+    const vMoveScreen = Math.floor(vMove / transformY);
+
+    const texWidth = 16;
+    const texHeight = 16;
+
+    const spriteHeight = Math.abs(Math.floor(resolutionHeight / transformY)) / vDiv;
+
+    let drawStartY = -spriteHeight / 2 + resolutionHeight / 2 + vMoveScreen;
     if (drawStartY < 0) drawStartY = 0;
-    let drawEndY = spriteHeight / 2 + resolutionHeight / 2;
+    let drawEndY = spriteHeight / 2 + resolutionHeight / 2 + vMoveScreen;
     if (drawEndY >= resolutionHeight) drawEndY = resolutionHeight - 1;
 
-    const spriteWidth = Math.abs(Math.floor(resolutionHeight / transformY));
+    const spriteWidth = Math.abs(Math.floor(resolutionHeight / transformY)) / uDiv;
     let drawStartX = -spriteWidth / 2 + spriteScreenX;
     if (drawStartY < 0) drawStartY = 0;
     let drawEndX = spriteWidth / 2 + spriteScreenX;
     if (drawEndY >= resolutionHeight) drawEndY = resolutionHeight - 1;
 
-    ctx.fillStyle = 'red';
-    ctx.fillRect(drawStartX, drawStartY, 20, drawEndY - drawStartY);
+    for (let stripe = drawStartX; stripe < drawEndX; stripe++) {
+      const texX = Math.floor(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
+      if (transformY > 0 && stripe > 0 && stripe < resolutionWidth) {
+        for(let y = drawStartY; y < drawEndY; y++) {
+          const d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
+          const texY = ((d * texHeight) / spriteHeight) / 256;
 
-    // const x1 = playerPos.x;
-    // const y1 = playerPos.y;
-//
-    // const x2 = playerPos.x + rayDir.x;
-    // const y2 = playerPos.y + rayDir.y;
-//
-    // const x3 = obj.pos.x;
-    // const y3 = obj.pos.y;
-//
-    // const areInSameLine = (y1 - y2) / (x1 - x2) - (y1 - y3) / (x1 - x3);
-    // const angle = Vector2d.findAngle(
-      // playerPos,
-      // new Vector2d(playerPos.x + rayDir.x, playerPos.y + rayDir.y),
-      // obj.pos,
-    // );
-//
-    // if (angle < Math.PI) {
-      // ctx.fillStyle = 'red';
-      // ctx.fillRect(x, 60, 10, 10);
-//
-      // ctx.font = '30px Arial';
-      // ctx.fillText(`${(y1 - y2) / (x1 - x2)}`, 10, 80);
-      // ctx.fillText(`${(y1 - y3) / (x1 - x3)}`, 10, 130);
-      // ctx.fillText(`${angle * (180 / Math.PI)}`, 10, 30);
-      // ctx.fillText(`${areInSameLine}`, 10, 30);
-      // ctx.fillText(`${playerPos.x} ${playerPos.y}`, 10, 80);
-      // ctx.fillText(`${playerPos.x + rayDir.x} ${playerPos.y + rayDir.y}`, 10, 130);
-      // ctx.fillText(`${obj.pos.x} ${obj.pos.y}`, 10, 180);
-
-      // const angle = Vector2d.findAngle(
-        // playerPos,
-        // new Vector2d(playerPos.x + rayDir.x, playerPos.y + rayDir.y),
-        // obj.pos,
-      // );
-//
-      // ctx.fillText(`${angle * (180 / Math.PI)}`, 10, 60);
-
-      // obj.drawn = true;
-    // }
+          ctx.drawImage(ammoImageData, Math.floor(texX), Math.floor(texY), 1, 1, stripe, y, 1, 1);
+        }
+      }
+    }
   });
 };
 
@@ -306,9 +285,10 @@ const update = () => {
 
     });
 
-    drawObjects(playerPos, rayDir, x);
   }
 
+  floorCtx.putImageData(rayCastingImageData, 0, 0);
+  drawObjects(playerPos, playerDir);
 };
 
 const rotSpeed = 0.07;
@@ -352,7 +332,6 @@ const loop = () => {
   rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);
   update(); 
   ctx.restore();
-  // floorCtx.putImageData(rayCastingImageData, 0, 0);
   window.requestAnimationFrame(loop);
 
   playerMovement();
@@ -385,6 +364,9 @@ loadAsset('Wall.png').then((asset) => {
   floorImageData = getImageData(asset)
   return loadAsset('Celling.png')
 }).then(asset => {
-  celingImageData = getImageData(asset);
+  celingImageData = getImageData(asset)
+  return loadAsset('Ammo.png')
+}).then(asset => {
+  ammoImageData = asset;
   window.requestAnimationFrame(loop);
 });
