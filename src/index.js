@@ -208,6 +208,10 @@ const drawObjects = (playerPos, playerDir, x) => {
     const spriteX = obj.pos.x - playerPos.x;
     const spriteY = obj.pos.y - playerPos.y;
 
+    if (spriteX === 0 && spriteY === 0) {
+      return;
+    }
+
     const invDet = 1 / (planeX * playerDir.y - playerDir.x * planeY);
     const transformX = invDet * (playerDir.y * spriteX - playerDir.x * spriteY);
     const transformY = invDet * (-planeY * spriteX + planeX * spriteY);
@@ -228,9 +232,9 @@ const drawObjects = (playerPos, playerDir, x) => {
 
     const spriteWidth = Math.abs(Math.floor(resolutionHeight / transformY)) / uDiv;
     let drawStartX = -spriteWidth / 2 + spriteScreenX;
-    if (drawStartY < 0) drawStartY = 0;
+    if (drawStartX < 0) drawStartX = 0;
     let drawEndX = spriteWidth / 2 + spriteScreenX;
-    if (drawEndY >= resolutionHeight) drawEndY = resolutionHeight - 1;
+    if (drawEndX >= resolutionWidth) drawEndX = resolutionHeight - 1;
 
     for (let stripe = drawStartX; stripe < drawEndX; stripe++) {
       const texX = Math.floor(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
