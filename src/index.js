@@ -58,10 +58,19 @@ const getImageData = image => {
 };
 
 function addPixelToImageData(sourceData, sourceIndex, dest, destIndex, alpha) {
+  if(!sourceData.data[sourceIndex + 3]) {
+    return;
+  }
+
   dest.data[destIndex] = sourceData.data[sourceIndex];
   dest.data[destIndex + 1] = sourceData.data[sourceIndex + 1];
   dest.data[destIndex + 2] = sourceData.data[sourceIndex + 2];
-  dest.data[destIndex + 3] = alpha;
+  dest.data[destIndex + 3] = sourceData.data[sourceIndex + 3];
+
+  if (alpha) {
+    dest.data[destIndex + 3] = alpha;
+    return;
+  }
 }
 
 function drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x) {
@@ -116,7 +125,7 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
     const destFloorIndex = (resolutionWidth * y + x) * 4;
     const destCeilIndex = (resolutionWidth * (resolutionHeight - y) + x) * 4;
 
-    const alpha = mapValue(currentDist, 0, 7, 255, 0);
+    const alpha = Math.floor(mapValue(currentDist, 0, 7, 255, 0));
 
     addPixelToImageData(floorImageData, sourceIndex, rayCastingImageData, destFloorIndex, alpha);
     addPixelToImageData(celingImageData, sourceIndex, rayCastingImageData, destCeilIndex, alpha);
@@ -250,7 +259,7 @@ const drawObjects = (playerPos, playerDir, x) => {
           const sourceIndex = ((textureSize * Math.floor(texY)) + Math.floor(texX)) * 4;
           const destIndex = ((resolutionWidth * y) + stripe) * 4;
 
-          addPixelToImageData(ammoImageData, sourceIndex, rayCastingImageData, destIndex, 255);
+          addPixelToImageData(ammoImageData, sourceIndex, rayCastingImageData, destIndex);
         }
       }
     }
@@ -306,7 +315,7 @@ const update = () => {
         const destIndex = (resolutionWidth * (Math.floor(ray.drawStart) - i) + x) * 4;
         const sourceIndex = ((textureSize * textureY) + textureX) * 4;
 
-        addPixelToImageData(wallImageData, Math.floor(sourceIndex), rayCastingImageData, Math.floor(destIndex), 255);
+        addPixelToImageData(wallImageData, Math.floor(sourceIndex), rayCastingImageData, Math.floor(destIndex));
       }
       if (value === 3 && backWall) {
         drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
@@ -398,6 +407,7 @@ loadAsset('Wall.png').then((asset) => {
   return loadAsset('Ammo.png')
 }).then(asset => {
   ammoImageData = getImageData(asset);
+  console.log(ammoImageData);
   ammoImage = asset;
   window.requestAnimationFrame(loop);
 });
