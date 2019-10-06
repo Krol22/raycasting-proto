@@ -2,13 +2,15 @@ import { map } from './map';
 import Vector2d from './vector2d';
 import { InputManager } from './inputManager';
 
+import { getImageDataFromImage, copyPixel } from './imageData.helper';
+
 const mapValue = (input, a, b, c, d) => {
   return c + ((d - c) / (b - a)) * (input - a);
 };
 
 /*
 
-  Todo: perfo, sorting, 
+  Todo: sorting, 
   Figure out how values vMove, uDiv, vDiv corelates with each other,
 
 */
@@ -17,11 +19,20 @@ const objects = [
   {
     pos: new Vector2d(11, 18),
     type: 'AMMO',
+    vMove: -160,
+    uDiv: 4,
+    vDiv: 4
+  },
+  {
+    pos: new Vector2d(11, 20),
+    type: 'AMMO',
     vMove: 160,
     uDiv: 4,
     vDiv: 4
   },
 ];
+
+let offsetY = 100;
 
 const ctx = document.querySelector('#game-canvas').getContext('2d');
 const floorCtx = document.querySelector('#floor-canvas').getContext('2d');
@@ -36,7 +47,7 @@ const textureSize = 16;
 let playerPos = new Vector2d(12, 18);
 let playerDir = new Vector2d(-1, 0);
 
-let planeX = 0;
+let planeX = 0.0;
 let planeY = 0.66;
 
 let rayCastingImageData;
@@ -44,34 +55,6 @@ let floorImageData;
 let celingImageData;
 let ammoImageData;
 let wallImageData;
-let ammoImage;
-
-const getImageData = image => {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = image.width;
-  canvas.height = image.height;
-
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(image, 0, 0);
-  return ctx.getImageData(0, 0, image.width, image.height);
-};
-
-function addPixelToImageData(sourceData, sourceIndex, dest, destIndex, alpha) {
-  if(!sourceData.data[sourceIndex + 3]) {
-    return;
-  }
-
-  dest.data[destIndex] = sourceData.data[sourceIndex];
-  dest.data[destIndex + 1] = sourceData.data[sourceIndex + 1];
-  dest.data[destIndex + 2] = sourceData.data[sourceIndex + 2];
-  dest.data[destIndex + 3] = sourceData.data[sourceIndex + 3];
-
-  if (alpha) {
-    dest.data[destIndex + 3] = alpha;
-    return;
-  }
-}
 
 function drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x) {
   const { dir, drawEnd } = ray;
@@ -110,7 +93,7 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
     floorYWall = mapPos.y + 1.0;
   }
 
-  for (let y = Math.floor(drawStart); y < resolutionHeight; y++) {
+  for (let y = Math.floor(drawStart); y < resolutionHeight + Math.abs(offsetY); y++) {
     const currentDist = resolutionHeight / (2 * y - resolutionHeight);
     const weight = currentDist / perpWallDist;
 
@@ -120,15 +103,10 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
     const floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
     const floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
 
-    const sourceIndex = ((textureSize * floorTexY) + floorTexX) * 4;
-
-    const destFloorIndex = (resolutionWidth * y + x) * 4;
-    const destCeilIndex = (resolutionWidth * (resolutionHeight - y) + x) * 4;
-
     const alpha = Math.floor(mapValue(currentDist, 0, 7, 255, 0));
 
-    addPixelToImageData(floorImageData, sourceIndex, rayCastingImageData, destFloorIndex, alpha);
-    addPixelToImageData(celingImageData, sourceIndex, rayCastingImageData, destCeilIndex, alpha);
+    copyPixel(floorImageData, floorTexX, floorTexY, textureSize, rayCastingImageData, x, y + offsetY, resolutionWidth, alpha);
+    copyPixel(celingImageData, floorTexX, floorTexY, textureSize, rayCastingImageData, x, resolutionHeight - y + offsetY, resolutionWidth, alpha);
   }
 }
 
@@ -210,7 +188,6 @@ function DDA(rayDir) {
   return [hitWalls, stepX, stepY];
 }
 
-let image;
 const resolutionWidth = 800;
 const resolutionHeight = 400;
 
@@ -241,7 +218,7 @@ const drawObjects = (playerPos, playerDir, x) => {
     let drawStartY = -spriteHeight / 2 + resolutionHeight / 2 + vMoveScreen;
     if (drawStartY < 0) drawStartY = 0;
     let drawEndY = spriteHeight / 2 + resolutionHeight / 2 + vMoveScreen;
-    if (drawEndY >= resolutionHeight) drawEndY = resolutionHeight - 1;
+    if (drawEndY >= resolutionHeight + offsetY) drawEndY = resolutionHeight + offsetY - 1;
 
     const spriteWidth = Math.abs(Math.floor(resolutionHeight / transformY)) / uDiv;
     let drawStartX = -spriteWidth / 2 + spriteScreenX;
@@ -256,10 +233,7 @@ const drawObjects = (playerPos, playerDir, x) => {
           const d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
           const texY = ((d * texHeight) / spriteHeight) / 256;
 
-          const sourceIndex = ((textureSize * Math.floor(texY)) + Math.floor(texX)) * 4;
-          const destIndex = ((resolutionWidth * y) + stripe) * 4;
-
-          addPixelToImageData(ammoImageData, sourceIndex, rayCastingImageData, destIndex);
+          copyPixel(ammoImageData, texX, texY, textureSize, rayCastingImageData, stripe, y, resolutionWidth);
         }
       }
     }
@@ -291,7 +265,7 @@ const update = () => {
       let lineHeight = Math.floor(Math.abs(resolutionHeight / ray.perpWallDist));
 
       // calculate lowest and highest pixel of wall;
-      ray.drawStart = (resolutionHeight + lineHeight) / 2 ;
+      ray.drawStart = (resolutionHeight + lineHeight) / 2;
       ray.drawEnd = ray.drawStart - lineHeight / (value === 3 ? value : 1);
 
       let wallX;
@@ -304,21 +278,20 @@ const update = () => {
       wallX -= Math.floor(wallX);
 
       drawFloorAndCeling(mapPos, side, wallX, ray, x);
+
       const textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
 
       for (let i = 0; i < lineHeight / (value === 3 ? value : 1); i++) {
-        if (Math.floor(ray.drawStart - i) > resolutionHeight) {
+        if (Math.floor(ray.drawStart - i + offsetY) > resolutionHeight) {
           continue;
         }
 
         const textureY = Math.floor(mapValue(i, 0, lineHeight, 0, textureSize));
-        const destIndex = (resolutionWidth * (Math.floor(ray.drawStart) - i) + x) * 4;
-        const sourceIndex = ((textureSize * textureY) + textureX) * 4;
 
-        addPixelToImageData(wallImageData, Math.floor(sourceIndex), rayCastingImageData, Math.floor(destIndex));
+        copyPixel(wallImageData, textureX, textureY, textureSize, rayCastingImageData, x, ray.drawStart - i + offsetY, resolutionWidth);
       }
       if (value === 3 && backWall) {
-        drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
+        // drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
       }
 
     });
@@ -339,6 +312,14 @@ const playerMovement = () => {
   if (InputManager.keys[83] && InputManager.keys[83].isDown) {
     playerPos.y -= playerDir.y * movementSpeed;
     playerPos.x -= playerDir.x * movementSpeed;
+  }
+
+  if (InputManager.keys[38] && InputManager.keys[38].isDown) {
+    offsetY += 1;
+  }
+
+  if (InputManager.keys[40] && InputManager.keys[40].isDown) {
+    offsetY -= 1;
   }
 
   if (InputManager.keys[68] && InputManager.keys[68].isDown) {
@@ -396,18 +377,15 @@ const loadAsset = (src) => {
 };
 
 loadAsset('Wall.png').then((asset) => {
-  image = asset;
-  wallImageData = getImageData(asset)
+  wallImageData = getImageDataFromImage(asset);
   return loadAsset('Floor.png')
 }).then(asset => {
-  floorImageData = getImageData(asset)
+  floorImageData = getImageDataFromImage(asset);
   return loadAsset('Celling.png')
 }).then(asset => {
-  celingImageData = getImageData(asset)
+  celingImageData = getImageDataFromImage(asset);
   return loadAsset('Ammo.png')
 }).then(asset => {
-  ammoImageData = getImageData(asset);
-  console.log(ammoImageData);
-  ammoImage = asset;
+  ammoImageData = getImageDataFromImage(asset);
   window.requestAnimationFrame(loop);
 });
