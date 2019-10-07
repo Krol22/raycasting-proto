@@ -12,6 +12,7 @@ export const InputManager = {
     mouseState: {
         pos: new Vector2d(0, 0),
         posInCanvas: new Vector2d(0, 0),
+        prevPos: new Vector2d(0, 0),
         mouse1: false,
         mouse2: false
     },
@@ -70,6 +71,8 @@ export const InputManager = {
 
             const pos = new Vector2d(Math.floor(e.clientX), Math.floor(e.clientY));
             const posInCanvas = new Vector2d(pos.x - Math.floor(boundingRect.x), pos.y - Math.floor(boundingRect.y));
+
+            this.mouseState.prevPos = this.mouseState.pos;
 
             this.mouseState.pos = pos;
             this.mouseState.posInCanvas = posInCanvas;

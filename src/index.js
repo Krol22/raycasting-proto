@@ -32,7 +32,6 @@ const objects = [
   },
 ];
 
-let offsetY = 100;
 
 const ctx = document.querySelector('#game-canvas').getContext('2d');
 const floorCtx = document.querySelector('#floor-canvas').getContext('2d');
@@ -40,12 +39,25 @@ ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
 
+const canvas = document.querySelector('#floor-canvas');
+
+canvas.addEventListener('pointerlockchange', () => {
+  console.log('success');
+});
+
+canvas.addEventListener('pointerlockerror', () => {
+  console.log('success');
+});
+
+canvas.requestPointerLock();
+
 InputManager.init('#game-canvas');
 
 const textureSize = 16;
 
 let playerPos = new Vector2d(12, 18);
 let playerDir = new Vector2d(-1, 0);
+let playerLookY = 100;
 
 let planeX = 0.0;
 let planeY = 0.66;
@@ -93,7 +105,7 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
     floorYWall = mapPos.y + 1.0;
   }
 
-  for (let y = Math.floor(drawStart); y < resolutionHeight + Math.abs(offsetY); y++) {
+  for (let y = Math.floor(drawStart); y < resolutionHeight + Math.abs(playerLookY); y++) {
     const currentDist = resolutionHeight / (2 * y - resolutionHeight);
     const weight = currentDist / perpWallDist;
 
@@ -105,8 +117,8 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
 
     const alpha = Math.floor(mapValue(currentDist, 0, 7, 255, 0));
 
-    copyPixel(floorImageData, floorTexX, floorTexY, textureSize, rayCastingImageData, x, y + offsetY, resolutionWidth, alpha);
-    copyPixel(celingImageData, floorTexX, floorTexY, textureSize, rayCastingImageData, x, resolutionHeight - y + offsetY, resolutionWidth, alpha);
+    copyPixel(floorImageData, floorTexX, floorTexY, textureSize, rayCastingImageData, x, y + playerLookY, resolutionWidth, alpha);
+    copyPixel(celingImageData, floorTexX, floorTexY, textureSize, rayCastingImageData, x, resolutionHeight - y + playerLookY, resolutionWidth, alpha);
   }
 }
 
@@ -191,7 +203,7 @@ function DDA(rayDir) {
 const resolutionWidth = 800;
 const resolutionHeight = 400;
 
-const drawObjects = (playerPos, playerDir, x) => {
+const drawObjects = () => {
   objects.forEach((obj) => {
     const { uDiv = 1, vDiv = 1, vMove = 0 } = obj;
 
@@ -208,7 +220,7 @@ const drawObjects = (playerPos, playerDir, x) => {
 
     const spriteScreenX = Math.floor((resolutionWidth / 2) * (1 + transformX / transformY));
 
-    const vMoveScreen = Math.floor(vMove / transformY);
+    const vMoveScreen = Math.floor(vMove / transformY) + playerLookY;
 
     const texWidth = 16;
     const texHeight = 16;
@@ -216,9 +228,9 @@ const drawObjects = (playerPos, playerDir, x) => {
     const spriteHeight = Math.abs(Math.floor(resolutionHeight / transformY)) / vDiv;
 
     let drawStartY = -spriteHeight / 2 + resolutionHeight / 2 + vMoveScreen;
-    if (drawStartY < 0) drawStartY = 0;
+    if (drawStartY < 0 - playerLookY) drawStartY = 0;
     let drawEndY = spriteHeight / 2 + resolutionHeight / 2 + vMoveScreen;
-    if (drawEndY >= resolutionHeight + offsetY) drawEndY = resolutionHeight + offsetY - 1;
+    if (drawEndY >= resolutionHeight - playerLookY) drawEndY = resolutionHeight - 1;
 
     const spriteWidth = Math.abs(Math.floor(resolutionHeight / transformY)) / uDiv;
     let drawStartX = -spriteWidth / 2 + spriteScreenX;
@@ -228,7 +240,7 @@ const drawObjects = (playerPos, playerDir, x) => {
 
     for (let stripe = Math.floor(drawStartX); stripe < drawEndX; stripe++) {
       const texX = Math.floor(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
-      if (transformY > 0 && stripe > 0 && stripe < resolutionWidth) {
+      if (transformY > 0) {
         for(let y = Math.floor(drawStartY); y < drawEndY; y++) {
           const d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
           const texY = ((d * texHeight) / spriteHeight) / 256;
@@ -281,14 +293,14 @@ const update = () => {
 
       const textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
 
-      for (let i = 0; i < lineHeight / (value === 3 ? value : 1); i++) {
-        if (Math.floor(ray.drawStart - i + offsetY) > resolutionHeight) {
+      for (let i = 0; i < Math.floor(lineHeight / (value === 3 ? value : 1)); i++) {
+        if (Math.floor(ray.drawStart - i + playerLookY) > resolutionHeight) {
           continue;
         }
 
         const textureY = Math.floor(mapValue(i, 0, lineHeight, 0, textureSize));
 
-        copyPixel(wallImageData, textureX, textureY, textureSize, rayCastingImageData, x, ray.drawStart - i + offsetY, resolutionWidth);
+        copyPixel(wallImageData, textureX, textureY, textureSize, rayCastingImageData, x, ray.drawStart - i + playerLookY, resolutionWidth);
       }
       if (value === 3 && backWall) {
         // drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
@@ -315,11 +327,11 @@ const playerMovement = () => {
   }
 
   if (InputManager.keys[38] && InputManager.keys[38].isDown) {
-    offsetY += 1;
+    playerLookY += 1;
   }
 
   if (InputManager.keys[40] && InputManager.keys[40].isDown) {
-    offsetY -= 1;
+    playerLookY -= 1;
   }
 
   if (InputManager.keys[68] && InputManager.keys[68].isDown) {
@@ -341,6 +353,8 @@ const playerMovement = () => {
     planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
     planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
   }
+
+  // playerLookY += Math.floor((InputManager.mouseState.prevPos.y - InputManager.mouseState.pos.y));
 };
 
 const loop = () => {
