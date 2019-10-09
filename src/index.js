@@ -39,17 +39,36 @@ ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
 
-const canvas = document.querySelector('#floor-canvas');
+const canvas = document.querySelector('#game-canvas');
 
-canvas.addEventListener('pointerlockchange', () => {
-  console.log('success');
+const mouseMove = e => {
+  playerLookY -= e.movementY;
+
+  const rotSpeed = -e.movementX / 1000;
+
+  const oldDirX = playerDir.x;
+  playerDir.x = playerDir.x * Math.cos(rotSpeed) - playerDir.y * Math.sin(rotSpeed);
+  playerDir.y = oldDirX * Math.sin(rotSpeed) + playerDir.y * Math.cos(rotSpeed);
+
+  const oldPlaneX = planeX;
+  planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
+  planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
+}
+
+let pointerlockvalue = false;
+document.addEventListener('pointerlockchange', event => {
+  pointerlockvalue = !pointerlockvalue;
+
+  if (pointerlockvalue) {
+    canvas.addEventListener('mousemove', mouseMove);
+  } else {
+    canvas.removeEventListener('mousemove', mouseMove);
+  }
 });
 
-canvas.addEventListener('pointerlockerror', () => {
-  console.log('success');
-});
-
-canvas.requestPointerLock();
+canvas.addEventListener('mousedown', () => {
+  canvas.requestPointerLock();
+})
 
 InputManager.init('#game-canvas');
 
@@ -326,34 +345,36 @@ const playerMovement = () => {
     playerPos.x -= playerDir.x * movementSpeed;
   }
 
-  if (InputManager.keys[38] && InputManager.keys[38].isDown) {
-    playerLookY += 1;
-  }
-
-  if (InputManager.keys[40] && InputManager.keys[40].isDown) {
-    playerLookY -= 1;
-  }
-
   if (InputManager.keys[68] && InputManager.keys[68].isDown) {
-    const oldDirX = playerDir.x;
-    playerDir.x = playerDir.x * Math.cos(-rotSpeed) - playerDir.y * Math.sin(-rotSpeed);
-    playerDir.y = oldDirX * Math.sin(-rotSpeed) + playerDir.y * Math.cos(-rotSpeed);
-
-    const oldPlaneX = planeX;
-    planeX = planeX * Math.cos(-rotSpeed) - planeY * Math.sin(-rotSpeed);
-    planeY = oldPlaneX * Math.sin(-rotSpeed) + planeY * Math.cos(-rotSpeed);
+    // playerPos.y -= playerDir.y * movementSpeed;
+    // playerPos.x += playerDir.x * movementSpeed;
   }
 
   if (InputManager.keys[65] && InputManager.keys[65].isDown) {
-    const oldDirX = playerDir.x;
-    playerDir.x = playerDir.x * Math.cos(rotSpeed) - playerDir.y * Math.sin(rotSpeed);
-    playerDir.y = oldDirX * Math.sin(rotSpeed) + playerDir.y * Math.cos(rotSpeed);
-
-    const oldPlaneX = planeX;
-    planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
-    planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
+    // playerPos.y += playerDir.y * movementSpeed;
+    // playerPos.x -= playerDir.x * movementSpeed;
   }
 
+  // if (InputManager.keys[68] && InputManager.keys[68].isDown) {
+    // const oldDirX = playerDir.x;
+    // playerDir.x = playerDir.x * Math.cos(-rotSpeed) - playerDir.y * Math.sin(-rotSpeed);
+    // playerDir.y = oldDirX * Math.sin(-rotSpeed) + playerDir.y * Math.cos(-rotSpeed);
+//
+    // const oldPlaneX = planeX;
+    // planeX = planeX * Math.cos(-rotSpeed) - planeY * Math.sin(-rotSpeed);
+    // planeY = oldPlaneX * Math.sin(-rotSpeed) + planeY * Math.cos(-rotSpeed);
+  // }
+//
+  // if (InputManager.keys[65] && InputManager.keys[65].isDown) {
+    // const oldDirX = playerDir.x;
+    // playerDir.x = playerDir.x * Math.cos(rotSpeed) - playerDir.y * Math.sin(rotSpeed);
+    // playerDir.y = oldDirX * Math.sin(rotSpeed) + playerDir.y * Math.cos(rotSpeed);
+//
+    // const oldPlaneX = planeX;
+    // planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
+    // planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
+  // }
+//
   // playerLookY += Math.floor((InputManager.mouseState.prevPos.y - InputManager.mouseState.pos.y));
 };
 
