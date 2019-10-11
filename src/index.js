@@ -24,7 +24,7 @@ const objects = [
     vDiv: 4
   },
   {
-    pos: new Vector2d(11, 20),
+    pos: new Vector2d(5, 17),
     type: 'AMMO',
     vMove: 160,
     uDiv: 4,
@@ -32,6 +32,7 @@ const objects = [
   },
 ];
 
+let zBuffer = [];
 
 const ctx = document.querySelector('#game-canvas').getContext('2d');
 const floorCtx = document.querySelector('#floor-canvas').getContext('2d');
@@ -76,7 +77,7 @@ const textureSize = 16;
 
 let playerPos = new Vector2d(12, 18);
 let playerDir = new Vector2d(-1, 0);
-let playerLookY = 100;
+let playerLookY = 0;
 
 let planeX = 0.0;
 let planeY = 0.66;
@@ -187,32 +188,32 @@ function DDA(rayDir) {
         side,
       };
 
-      let backWallX = mapPos.x;
-      let backWallY = mapPos.y;
-      let backWallSide;
-
-      if (sideDistX < sideDistY) {
-        backWallX += stepX;
-        backWallX = Math.floor(backWallX);
-        backWallSide = 0;
-      } else {
-        backWallY += stepY;
-        backWallY = Math.floor(backWallY);
-        backWallSide = 1;
-      }
-
-      let backWall = {
-        mapPos: new Vector2d(backWallX, backWallY),
-        side: backWallSide,
-        value: 3,
-      };
-
-      newWall.backWall = backWall;
+      // let backWallX = mapPos.x;
+      // let backWallY = mapPos.y;
+      // let backWallSide;
+//
+      // if (sideDistX < sideDistY) {
+        // backWallX += stepX;
+        // backWallX = Math.floor(backWallX);
+        // backWallSide = 0;
+      // } else {
+        // backWallY += stepY;
+        // backWallY = Math.floor(backWallY);
+        // backWallSide = 1;
+      // }
+//
+      // let backWall = {
+        // mapPos: new Vector2d(backWallX, backWallY),
+        // side: backWallSide,
+        // value: 3,
+      // };
+//
+      // newWall.backWall = backWall;
       hitWalls.push(newWall);
-
-      if (map[mapPos.x][mapPos.y] !== 3) {
-        break;
-      }
+//
+      // if (map[mapPos.x][mapPos.y] !== 3) {
+      break;
+      // }
     }
   }
 
@@ -220,7 +221,7 @@ function DDA(rayDir) {
 }
 
 const resolutionWidth = 800;
-const resolutionHeight = 400;
+const resolutionHeight = 600;
 
 const drawObjects = () => {
   objects.forEach((obj) => {
@@ -228,10 +229,6 @@ const drawObjects = () => {
 
     const spriteX = obj.pos.x - playerPos.x;
     const spriteY = obj.pos.y - playerPos.y;
-
-    if (spriteX === 0 && spriteY === 0) {
-      return;
-    }
 
     const invDet = 1 / (planeX * playerDir.y - playerDir.x * planeY);
     const transformX = invDet * (playerDir.y * spriteX - playerDir.x * spriteY);
@@ -284,7 +281,7 @@ const update = () => {
       const ray = {};
       ray.dir = rayDir;
 
-      let { mapPos, side, value, backWall } = hitWall;
+      let { mapPos, side, value /*, backWall */} = hitWall;
 
       if (side === 0) {
         ray.perpWallDist = (mapPos.x - playerPos.x + (1 - stepX) / 2) / ray.dir.x;
@@ -297,7 +294,7 @@ const update = () => {
 
       // calculate lowest and highest pixel of wall;
       ray.drawStart = (resolutionHeight + lineHeight) / 2;
-      ray.drawEnd = ray.drawStart - lineHeight / (value === 3 ? value : 1);
+      ray.drawEnd = ray.drawStart - lineHeight;
 
       let wallX;
       if (side === 0) {
@@ -308,31 +305,44 @@ const update = () => {
 
       wallX -= Math.floor(wallX);
 
-      drawFloorAndCeling(mapPos, side, wallX, ray, x);
+      // drawFloorAndCeling(mapPos, side, wallX, ray, x);
 
       const textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
 
-      for (let i = 0; i < Math.floor(lineHeight / (value === 3 ? value : 1)); i++) {
-        if (Math.floor(ray.drawStart - i + playerLookY) > resolutionHeight) {
-          continue;
-        }
-
-        const textureY = Math.floor(mapValue(i, 0, lineHeight, 0, textureSize));
-
-        copyPixel(wallImageData, textureX, textureY, textureSize, rayCastingImageData, x, ray.drawStart - i + playerLookY, resolutionWidth);
-      }
-      if (value === 3 && backWall) {
-        // drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
+      let offsetDS = 0;
+      if (ray.drawStart > resolutionHeight) {
+        offsetDS = ray.drawStart;
+        ray.drawStart = resolutionHeight;
       }
 
+      let offsetDE = 0;
+      if (ray.drawEnd < 0) {
+        offsetDE = ray.drawEnd;
+        ray.drawEnd = 0;
+      }
+
+      let oldValue = lineHeight;
+      lineHeight = ray.drawStart - ray.drawEnd;
+
+      for (let i = playerLookY < 0 ? playerLookY : 0; i < lineHeight + (playerLookY > 0 ? playerLookY : 0); i++) {
+        const textureY = Math.floor(
+          mapValue(i, 
+            offsetDE ? offsetDE : 0, 
+            offsetDS ? offsetDS : oldValue, 
+            0, 
+            textureSize
+          )
+        );
+
+        copyPixel(wallImageData, textureX, textureY, textureSize, rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + playerLookY), resolutionWidth);
+      }
     });
 
   }
 
-  drawObjects(playerPos, playerDir);
+  // drawObjects(playerPos, playerDir);
 };
 
-const rotSpeed = 0.07;
 const movementSpeed = 0.1;
 const playerMovement = () => {
   if (InputManager.keys[87] && InputManager.keys[87].isDown) {
@@ -379,16 +389,12 @@ const playerMovement = () => {
 };
 
 const loop = () => {
-  ctx.clearRect(0, 0, 800, 400);
+  playerMovement();
   floorCtx.clearRect(0, 0, 800, 400);
-  ctx.save();
   rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);
   update();
   floorCtx.putImageData(rayCastingImageData, 0, 0);
-  ctx.restore();
   window.requestAnimationFrame(loop);
-
-  playerMovement();
 };
 
 window.addEventListener('keydown', e => {
