@@ -31,3 +31,8 @@ function addPixelToImageData(sourceData, sourceIndex, dest, destIndex, alpha) {
     return;
   }
 }
+
+export default {
+  copyPixel,
+  getImageDataFromImage
+}
