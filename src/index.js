@@ -90,7 +90,7 @@ const textureSize = 16;
 let playerDir = new Vector2d(1, -1);
 let playerLookY = 0;
 
-let planeX = 0.0;
+let planeX = 0.62;
 let planeY = 0.66;
 
 let rayCastingImageData;
@@ -178,9 +178,8 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
 
 map.walls = [];
 
-// playerPos;
-let playerPos = new Vector2d(40, 22);
-function DDAv2(rayDir) {
+const playerPos = new Vector2d(40, 22);
+function castRays(rayDir) {
   const hitWalls = [];
 
   for (let i = 0; i < walls.length; i++) {
@@ -279,7 +278,7 @@ const update = () => {
     const cameraX = 2 * x / resolutionWidth - 1; 
     const rayDir = new Vector2d(playerDir.x + planeX * cameraX, playerDir.y + planeY * cameraX);
 
-    const [hitWalls] = DDAv2(rayDir);
+    const [hitWalls] = castRays(rayDir);
 
     // Calculate distance projected on camera
     hitWalls.reverse().forEach(hitWall => {
