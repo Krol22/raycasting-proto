@@ -8,7 +8,7 @@ const mapValue = (input, a, b, c, d) => {
   return c + ((d - c) / (b - a)) * (input - a);
 };
 
-const walls = [
+window.walls = [
   {
     v1: new Vector2d(10, 30),
     v2: new Vector2d(90, 100),
@@ -22,6 +22,7 @@ const walls = [
     v2: new Vector2d(80, 60),
   },
 ];
+
 
 /*
   Todo: sorting, 
@@ -57,7 +58,7 @@ const canvas = document.querySelector('#game-canvas');
 const mouseMove = e => {
   playerLookY -= e.movementY;
 
-  const rotSpeed = -e.movementX / 1000;
+  const rotSpeed = e.movementX / 1000;
 
   const oldDirX = playerDir.x;
   playerDir.x = playerDir.x * Math.cos(rotSpeed) - playerDir.y * Math.sin(rotSpeed);
@@ -122,15 +123,15 @@ const saveInBuffer = (x, y, rayLength, id) => {
 }
 
 
-// function drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x) {
+// function drawFloorInLowerWalls(backWall, window.playerPos, ray, stepX, stepY, x) {
   // const { dir, drawEnd } = ray;
 //
   // let backWallPerpWallDist;
   // let backWallMapPos = backWall.mapPos;
   // if (backWall.side === 0) {
-    // backWallPerpWallDist = (backWallMapPos.x - playerPos.x + (1 - stepX) / 2) / dir.x;
+    // backWallPerpWallDist = (backWallMapPos.x - window.playerPos.x + (1 - stepX) / 2) / dir.x;
   // } else {
-    // backWallPerpWallDist = (backWallMapPos.y - playerPos.y + (1 - stepY) / 2) / dir.y;
+    // backWallPerpWallDist = (backWallMapPos.y - window.playerPos.y + (1 - stepY) / 2) / dir.y;
   // }
 //
   // let backWallFloorLineHeigth = Math.floor(Math.abs(resolutionHeight / backWallPerpWallDist));
@@ -163,8 +164,8 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
     const currentDist = resolutionHeight / (2 * y - resolutionHeight);
     const weight = currentDist / perpWallDist;
 
-    const currentFloorX = (weight * floorXWall + (1 - weight) * playerPos.x);
-    const currentFloorY = (weight * floorYWall + (1 - weight) * playerPos.y);
+    const currentFloorX = (weight * floorXWall + (1 - weight) * window.playerPos.x);
+    const currentFloorY = (weight * floorYWall + (1 - weight) * window.playerPos.y);
 
     const floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
     const floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
@@ -178,23 +179,23 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
 
 map.walls = [];
 
-const playerPos = new Vector2d(40, 22);
+window.playerPos = new Vector2d(40, 22);
 function castRays(rayDir) {
   const hitWalls = [];
 
-  for (let i = 0; i < walls.length; i++) {
-    const { v1, v2 } = walls[i];
+  for (let i = 0; i < window.walls.length; i++) {
+    const { v1, v2 } = window.walls[i];
 
     const x1 = v1.x;
     const y1 = v1.y;
     const x2 = v2.x;
     const y2 = v2.y;
 
-    const x3 = playerPos.x;
-    const y3 = playerPos.y;
+    const x3 = window.playerPos.x;
+    const y3 = window.playerPos.y;
 
-    const x4 = playerPos.x + rayDir.x;
-    const y4 = playerPos.y + rayDir.y;
+    const x4 = window.playerPos.x + rayDir.x;
+    const y4 = window.playerPos.y + rayDir.y;
 
     const den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 
@@ -227,10 +228,10 @@ const drawObjects = () => {
   objects.forEach(obj => {
     const { uDiv = 1, vDiv = 1, vMove = 0 } = obj;
 
-    const spriteX = obj.pos.x - playerPos.x;
-    const spriteY = obj.pos.y - playerPos.y;
+    const spriteX = obj.pos.x - window.playerPos.x;
+    const spriteY = obj.pos.y - window.playerPos.y;
 
-    const len = Vector2d.magnitude(obj.pos, playerPos);
+    const len = Vector2d.magnitude(obj.pos, window.playerPos);
 
     const invDet = 1 / (planeX * playerDir.y - playerDir.x * planeY);
     const transformX = invDet * (playerDir.y * spriteX - playerDir.x * spriteY);
@@ -288,7 +289,7 @@ const update = () => {
       let { mapPos } = hitWall;
       const side = 1;
 
-      ray.perpWallDist = (mapPos.x - playerPos.x) / ray.dir.x;
+      ray.perpWallDist = (mapPos.x - window.playerPos.x) / ray.dir.x;
 
       // Calculate col height;
       let lineHeight = Math.floor(Math.abs(resolutionHeight / ray.perpWallDist));
@@ -299,9 +300,9 @@ const update = () => {
 
       let wallX;
       if (side === 0) {
-        wallX = playerPos.y + ray.perpWallDist * ray.dir.y;
+        wallX = window.playerPos.y + ray.perpWallDist * ray.dir.y;
       } else {
-        wallX = playerPos.x + ray.perpWallDist * ray.dir.x;
+        wallX = window.playerPos.x + ray.perpWallDist * ray.dir.x;
       }
 
       wallX -= Math.floor(wallX);
@@ -335,34 +336,43 @@ const update = () => {
           )
         );
 
-        // if (saveInBuffer(Math.floor(x), Math.floor(ray.drawStart - i + playerLookY), ray.perpWallDist, hitWall.id)) {
-          copyPixel(wallImageData, textureX, textureY, textureSize, rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + playerLookY), resolutionWidth);
-        // }
+        copyPixel(wallImageData, textureX, textureY, textureSize, rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + playerLookY), resolutionWidth);
       }
     });
 
   }
 
-  drawObjects(playerPos, playerDir);
+  drawObjects(window.playerPos, playerDir);
 };
 
 const movementSpeed = 0.1;
 
 const playerMovement = () => {
   if (InputManager.keys[87] && InputManager.keys[87].isDown) {
-    playerPos.y += playerDir.y * movementSpeed;
-    playerPos.x += playerDir.x * movementSpeed;
+    window.playerPos.y += playerDir.y * movementSpeed;
+    window.playerPos.x += playerDir.x * movementSpeed;
   }
 
   if (InputManager.keys[83] && InputManager.keys[83].isDown) {
-    playerPos.y -= playerDir.y * movementSpeed;
-    playerPos.x -= playerDir.x * movementSpeed;
+    window.playerPos.y -= playerDir.y * movementSpeed;
+    window.playerPos.x -= playerDir.x * movementSpeed;
   }
 
 };
 
+let step = 0.1;
+
 const loop = () => {
   zBuffer = [];
+  if (window.walls[2].v1.x > 30) {
+    step = -0.1;
+  } else if (window.walls[2].v1.x < 10) {
+    step = 0.1;
+  }
+
+  window.walls[2].v1.x += step;
+  window.walls[2].v1.y += step;
+
   playerMovement();
   floorCtx.clearRect(0, 0, 800, 400);
   rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);

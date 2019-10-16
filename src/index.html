@@ -21,6 +21,11 @@
       border: 1px solid red;
       position: absolute;
     }
+
+    .editor canvas {
+      border: 1px solid red;
+    }
+      
     .game {
       height: 400px;
     }
@@ -30,6 +35,9 @@
   <div class="game">
     <canvas id="floor-canvas" width="800" height="400"></canvas>
     <canvas id="game-canvas" width="800" height="400"></canvas>
+  </div>
+  <div class="editor">
+    <canvas id="editor-canvas" width="400" height="400"></canvas>
   </div>
   <div class="desc">
     <div>
@@ -49,5 +57,6 @@
     </div>
   </div>
   <script src="./index.js"></script>
+  <script src="./editor.js"></script>
 </body>
 </html>
