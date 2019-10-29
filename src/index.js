@@ -8,25 +8,13 @@ const mapValue = (input, a, b, c, d) => {
   return c + ((d - c) / (b - a)) * (input - a);
 };
 
-window.walls = [
-  {
-    v1: new Vector2d(10, 30),
-    v2: new Vector2d(90, 100),
-  },
-  {
-    v1: new Vector2d(30, 10),
-    v2: new Vector2d(100, 60),
-  },
+const walls = [
   {
     v1: new Vector2d(40, 10),
     v2: new Vector2d(80, 60),
+    height: 4,
   },
 ];
-
-
-/*
-  Todo: sorting, 
-*/
 
 const objects = [
   {
@@ -48,7 +36,6 @@ const objects = [
 ];
 
 const ctx = document.querySelector('#game-canvas').getContext('2d');
-const floorCtx = document.querySelector('#floor-canvas').getContext('2d');
 ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
@@ -60,9 +47,9 @@ const mouseMove = e => {
 
   const rotSpeed = e.movementX / 1000;
 
-  const oldDirX = playerDir.x;
-  playerDir.x = playerDir.x * Math.cos(rotSpeed) - playerDir.y * Math.sin(rotSpeed);
-  playerDir.y = oldDirX * Math.sin(rotSpeed) + playerDir.y * Math.cos(rotSpeed);
+  const oldDirX = player.dir.x;
+  player.dir.x = player.dir.x * Math.cos(rotSpeed) - player.dir.y * Math.sin(rotSpeed);
+  player.dir.y = oldDirX * Math.sin(rotSpeed) + player.dir.y * Math.cos(rotSpeed);
 
   const oldPlaneX = planeX;
   planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
@@ -88,40 +75,25 @@ InputManager.init('#game-canvas');
 
 const textureSize = 16;
 
-let playerDir = new Vector2d(1, -1);
+const playerPos = new Vector2d(40, 22);
 let playerLookY = 0;
 
 let planeX = 0.62;
 let planeY = 0.66;
 
+const player = {
+  position: new Vector2d(40, 22),
+  dir: new Vector2d(1, -1),
+};
+
+const resolutionWidth = 800;
+const resolutionHeight = 600;
+
 let rayCastingImageData;
 let floorImageData;
 let celingImageData;
-let ammoImageData;
-let wallImageData;
 
-let zBuffer = [];
-
-const saveInBuffer = (x, y, rayLength, id) => {
-  if (!zBuffer[x]) {
-    zBuffer[x] = [];
-    zBuffer[x][y] = { rayLength, id };
-    return true;
-  }
-
-  if (!zBuffer[x][y]) {
-    zBuffer[x][y] = { rayLength, id };
-    return true;
-  }
-
-  if (zBuffer[x][y].rayLength < rayLength) {
-    return false;
-  }
-
-  zBuffer[x][y] = { rayLength, id };
-  return true;
-}
-
+const movementSpeed = 0.1;
 
 // function drawFloorInLowerWalls(backWall, window.playerPos, ray, stepX, stepY, x) {
   // const { dir, drawEnd } = ray;
@@ -141,7 +113,51 @@ const saveInBuffer = (x, y, rayLength, id) => {
   // ctx.fillRect(x, floorEnd, 1, drawEnd - floorEnd);
 // }
 
-function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
+map.walls = [];
+
+function castRays(playerPosition, rayDir) {
+  const hitWalls = [];
+
+  for (let i = 0; i < walls.length; i++) {
+    const { v1, v2, height, texture } = walls[i];
+
+    const x1 = v1.x;
+    const y1 = v1.y;
+    const x2 = v2.x;
+    const y2 = v2.y;
+
+    const x3 = playerPosition.x;
+    const y3 = playerPosition.y;
+
+    const x4 = playerPosition.x + rayDir.x;
+    const y4 = playerPosition.y + rayDir.y;
+
+    const den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+    if (den === 0) { 
+      continue;
+    }
+
+    const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
+    const u = - ((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
+
+    if (t <= 0 || t >= 1 || u <= 0) {
+      continue;
+    }
+
+    hitWalls.push({
+      id: 4,
+      mapPos: new Vector2d(x1 + t * (x2 - x1), y1 + t * (y2 - y1)),
+      height,
+      texture,
+      side: 0,
+    });
+  }
+
+  return [hitWalls];
+}
+
+const drawFloorAndCeling = (mapPos, side, wallX, ray, x) => {
   const { perpWallDist, drawStart, dir } = ray;
   let floorXWall; 
   let floorYWall;
@@ -164,8 +180,8 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
     const currentDist = resolutionHeight / (2 * y - resolutionHeight);
     const weight = currentDist / perpWallDist;
 
-    const currentFloorX = (weight * floorXWall + (1 - weight) * window.playerPos.x);
-    const currentFloorY = (weight * floorYWall + (1 - weight) * window.playerPos.y);
+    const currentFloorX = (weight * floorXWall + (1 - weight) * playerPos.x);
+    const currentFloorY = (weight * floorYWall + (1 - weight) * playerPos.y);
 
     const floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
     const floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
@@ -177,72 +193,30 @@ function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
   }
 }
 
-map.walls = [];
+const drawObjects = (player, objects) => {
+  const { position, dir } = player;
 
-window.playerPos = new Vector2d(40, 22);
-function castRays(rayDir) {
-  const hitWalls = [];
+  const texWidth = 16;
+  const texHeight = 16;
 
-  for (let i = 0; i < window.walls.length; i++) {
-    const { v1, v2 } = window.walls[i];
+  objects.sort((obj1, obj2) => {
+    const len = Vector2d.magnitude(obj1.pos, position);
+    const len2 = Vector2d.magnitude(obj2.pos, position);
 
-    const x1 = v1.x;
-    const y1 = v1.y;
-    const x2 = v2.x;
-    const y2 = v2.y;
+    return len2 - len;
+  }).forEach(obj => {
+    const { uDiv = 1, vDiv = 1, vMove = 0, texture } = obj;
 
-    const x3 = window.playerPos.x;
-    const y3 = window.playerPos.y;
+    const spriteX = obj.pos.x - position.x;
+    const spriteY = obj.pos.y - position.y;
 
-    const x4 = window.playerPos.x + rayDir.x;
-    const y4 = window.playerPos.y + rayDir.y;
-
-    const den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-
-    if (den === 0) { 
-      continue;
-    }
-
-    const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
-    const u = - ((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
-
-    if (t <= 0 || t >= 1 || u <= 0) {
-      continue;
-    }
-
-    hitWalls.push({
-      id: 4,
-      mapPos: new Vector2d(x1 + t * (x2 - x1), y1 + t * (y2 - y1)),
-      value: 1,
-      side: 0,
-    });
-  }
-
-  return [hitWalls];
-}
-
-const resolutionWidth = 800;
-const resolutionHeight = 600;
-
-const drawObjects = () => {
-  objects.forEach(obj => {
-    const { uDiv = 1, vDiv = 1, vMove = 0 } = obj;
-
-    const spriteX = obj.pos.x - window.playerPos.x;
-    const spriteY = obj.pos.y - window.playerPos.y;
-
-    const len = Vector2d.magnitude(obj.pos, window.playerPos);
-
-    const invDet = 1 / (planeX * playerDir.y - playerDir.x * planeY);
-    const transformX = invDet * (playerDir.y * spriteX - playerDir.x * spriteY);
+    const invDet = 1 / (planeX * dir.y - dir.x * planeY);
+    const transformX = invDet * (dir.y * spriteX - dir.x * spriteY);
     const transformY = invDet * (-planeY * spriteX + planeX * spriteY);
 
     const spriteScreenX = Math.floor((resolutionWidth / 2) * (1 + transformX / transformY));
 
     const vMoveScreen = Math.floor(vMove / transformY) + playerLookY;
-
-    const texWidth = 16;
-    const texHeight = 16;
 
     const spriteHeight = Math.abs(Math.floor(resolutionHeight / transformY)) / vDiv;
 
@@ -264,45 +238,44 @@ const drawObjects = () => {
           const d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
           const texY = ((d * texHeight) / spriteHeight) / 256;
 
-          if (saveInBuffer(stripe, y, len, obj.id)) {
-            copyPixel(ammoImageData, texX, texY, textureSize, rayCastingImageData, stripe, y, resolutionWidth);
-          }
+          copyPixel(texture, texX, texY, textureSize, rayCastingImageData, stripe, y, resolutionWidth);
         }
       }
     }
   });
 };
 
-const update = () => {
-  objects.forEach(obj => obj.drawn = false);
+const drawWalls = (player) => {
+  const { position, dir } = player;
+
   for (let x = 0; x < resolutionWidth; x++) {
     const cameraX = 2 * x / resolutionWidth - 1; 
-    const rayDir = new Vector2d(playerDir.x + planeX * cameraX, playerDir.y + planeY * cameraX);
+    const rayDir = new Vector2d(dir.x + planeX * cameraX, dir.y + planeY * cameraX);
 
-    const [hitWalls] = castRays(rayDir);
+    const [hitWalls] = castRays(position, rayDir);
 
     // Calculate distance projected on camera
     hitWalls.reverse().forEach(hitWall => {
       const ray = {};
       ray.dir = rayDir;
 
-      let { mapPos } = hitWall;
+      let { mapPos, texture } = hitWall;
       const side = 1;
 
-      ray.perpWallDist = (mapPos.x - window.playerPos.x) / ray.dir.x;
+      ray.perpWallDist = (mapPos.x - position.x) / ray.dir.x;
 
       // Calculate col height;
       let lineHeight = Math.floor(Math.abs(resolutionHeight / ray.perpWallDist));
 
-      // calculate lowest and highest pixel of wall;
+      // Calculate lowest and highest pixel of wall;
       ray.drawStart = (resolutionHeight + lineHeight) / 2;
       ray.drawEnd = ray.drawStart - lineHeight;
 
       let wallX;
       if (side === 0) {
-        wallX = window.playerPos.y + ray.perpWallDist * ray.dir.y;
+        wallX = position.y + ray.perpWallDist * ray.dir.y;
       } else {
-        wallX = window.playerPos.x + ray.perpWallDist * ray.dir.x;
+        wallX = position.x + ray.perpWallDist * ray.dir.x;
       }
 
       wallX -= Math.floor(wallX);
@@ -322,62 +295,51 @@ const update = () => {
       }
 
       lineHeight = ray.drawStart - ray.drawEnd;
+      lineHeight;
 
       let mapValueMin = offsetDE ? offsetDE : 0;
       let mapValueMax = offsetDS ? offsetDS : lineHeight;
 
       for (let i = playerLookY < 0 ? playerLookY : 0; i < lineHeight + (playerLookY > 0 ? playerLookY : 0); i++) {
         const textureY = Math.floor(
-          mapValue(i, 
+          mapValue(i,
             mapValueMin,
             mapValueMax,
-            0, 
+            0,
             textureSize
           )
         );
 
-        copyPixel(wallImageData, textureX, textureY, textureSize, rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + playerLookY), resolutionWidth);
+        copyPixel(texture, textureX, textureY, textureSize, rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + playerLookY), resolutionWidth);
       }
     });
-
   }
-
-  drawObjects(window.playerPos, playerDir);
 };
 
-const movementSpeed = 0.1;
+const update = () => {
+  drawObjects(player, objects);
+  drawWalls(player);
+};
 
 const playerMovement = () => {
   if (InputManager.keys[87] && InputManager.keys[87].isDown) {
-    window.playerPos.y += playerDir.y * movementSpeed;
-    window.playerPos.x += playerDir.x * movementSpeed;
+    player.position.y += player.dir.y * movementSpeed;
+    player.position.x += player.dir.x * movementSpeed;
   }
 
   if (InputManager.keys[83] && InputManager.keys[83].isDown) {
-    window.playerPos.y -= playerDir.y * movementSpeed;
-    window.playerPos.x -= playerDir.x * movementSpeed;
+    player.position.y -= player.dir.y * movementSpeed;
+    player.position.x -= player.dir.x * movementSpeed;
   }
 
 };
 
-let step = 0.1;
-
 const loop = () => {
-  zBuffer = [];
-  if (window.walls[2].v1.x > 30) {
-    step = -0.1;
-  } else if (window.walls[2].v1.x < 10) {
-    step = 0.1;
-  }
-
-  window.walls[2].v1.x += step;
-  window.walls[2].v1.y += step;
-
   playerMovement();
-  floorCtx.clearRect(0, 0, 800, 400);
+  ctx.clearRect(0, 0, 800, 400);
   rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);
   update();
-  floorCtx.putImageData(rayCastingImageData, 0, 0);
+  ctx.putImageData(rayCastingImageData, 0, 0);
   window.requestAnimationFrame(loop);
 };
 
@@ -392,7 +354,8 @@ const loadAsset = (src) => {
 };
 
 loadAsset('Wall.png').then((asset) => {
-  wallImageData = getImageDataFromImage(asset);
+  const wallImageData = getImageDataFromImage(asset);
+  walls[0].texture = wallImageData;
   return loadAsset('Floor.png')
 }).then(asset => {
   floorImageData = getImageDataFromImage(asset);
@@ -401,6 +364,7 @@ loadAsset('Wall.png').then((asset) => {
   celingImageData = getImageDataFromImage(asset);
   return loadAsset('Ammo.png')
 }).then(asset => {
-  ammoImageData = getImageDataFromImage(asset);
+  const ammoImageData = getImageDataFromImage(asset);
+  objects.forEach(object => { object.texture = ammoImageData })
   window.requestAnimationFrame(loop);
 });
