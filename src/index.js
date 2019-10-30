@@ -16,7 +16,7 @@ const walls = [
 const objects = [
   {
     id: 0,
-    pos: new Vector2d(11, 18),
+    pos: new Vector2d(42, 18),
     type: 'AMMO',
     vMove: -160,
     uDiv: 4,
