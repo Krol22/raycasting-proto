@@ -66,12 +66,16 @@ export default class RaycastRenderer {
         continue;
       }
 
+      const mapPos = new Vector2d(x1 + t * (x2 - x1), y1 + t * (y2 - y1));
+
       hitWalls.push({
         id: 4,
-        mapPos: new Vector2d(x1 + t * (x2 - x1), y1 + t * (y2 - y1)),
+        side: 0,
+        len: Vector2d.magnitude(mapPos, playerPosition),
+        mapPos,
         height,
         texture,
-        side: 0,
+        type: 'WALL',
       });
     }
 
@@ -132,7 +136,7 @@ export default class RaycastRenderer {
     // }
   // }
 //
-  drawObjects(player, objects) {
+  prepareObjectToDraw(player, objects) {
     const { position, dir } = player;
     const { planeX, planeY, lookY } = this.camera;
 
@@ -147,7 +151,7 @@ export default class RaycastRenderer {
 
       return len2 - len;
     }).forEach(obj => {
-      const { uDiv = 1, vDiv = 1, vMove = 0, texture } = obj;
+      const { uDiv = 1, vDiv = 1, vMove = 0 } = obj;
 
       const spriteX = obj.pos.x - position.x;
       const spriteY = obj.pos.y - position.y;
@@ -175,12 +179,6 @@ export default class RaycastRenderer {
       let drawEndX = spriteWidth / 2 + spriteScreenX;
       if (drawEndX >= resolutionWidth) drawEndX = resolutionHeight - 1;
 
-      /*
-        TODO 2:
-        I think I could use drawStartX and drawEndX to properly sort objects and draw them while raycasting,
-        because if drawStartX === x then it should draw walls => objects etc.
-      */
-
       sortedObjects.push({
         drawStartX: Math.floor(drawStartX),
         drawEndX: Math.floor(drawEndX),
@@ -195,28 +193,102 @@ export default class RaycastRenderer {
         transformY,
         texWidth,
         texHeight,
+        type: 'OBJECT',
       });
 
-      for (let stripe = Math.floor(drawStartX); stripe < drawEndX; stripe++) {
-        const texX = Math.floor(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
-        if (transformY > 0) {
-          for(let y = Math.floor(drawStartY); y < drawEndY; y++) {
-            const d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
-            const texY = ((d * texHeight) / spriteHeight) / 256;
-
-            copyPixel(texture, texX, texY, textureSize, this.rayCastingImageData, stripe, y, resolutionWidth);
-          }
-        }
-      }
     });
 
     return sortedObjects
       .sort((obj1, obj2) => {
         return obj1.drawStartX - obj2.drawStartX;
       });
-  };
+  }
 
-  drawWalls(player, walls, objects) {
+  drawObject(object, x) {
+    const {
+      drawStartY,
+      drawEndY,
+      vMoveScreen,
+      spriteScreenX, 
+      spriteWidth,
+      spriteHeight,
+      transformY,
+      texWidth,
+      texHeight,
+      obj,
+    } = object;
+
+    const texX = Math.floor(256 * (x - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
+    if (transformY > 0) {
+      for(let y = Math.floor(drawStartY); y < drawEndY; y++) {
+        const d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
+        const texY = ((d * texHeight) / spriteHeight) / 256;
+
+        copyPixel(obj.texture, texX, texY, textureSize, this.rayCastingImageData, x, y, resolutionWidth);
+      }
+    }
+  }
+
+  drawWall(player, wall, x, rayDir) {
+    const { position } = player;
+
+    const ray = {};
+    ray.dir = rayDir;
+
+    let { mapPos, texture } = wall;
+    const side = 1;
+
+    ray.perpWallDist = (mapPos.x - position.x) / ray.dir.x;
+
+    let lineHeight = Math.floor(Math.abs(resolutionHeight / ray.perpWallDist));
+
+    ray.drawStart = (resolutionHeight + lineHeight) / 2;
+    ray.drawEnd = ray.drawStart - lineHeight;
+
+    let wallX;
+    if (side === 0) {
+      wallX = position.y + ray.perpWallDist * ray.dir.y;
+    } else {
+      wallX = position.x + ray.perpWallDist * ray.dir.x;
+    }
+
+    wallX -= Math.floor(wallX);
+
+    const textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
+
+    let offsetDS = 0;
+    if (ray.drawStart > resolutionHeight) {
+      offsetDS = ray.drawStart;
+      ray.drawStart = resolutionHeight;
+    }
+
+    let offsetDE = 0;
+    if (ray.drawEnd < 0) {
+      offsetDE = ray.drawEnd;
+      ray.drawEnd = 0;
+    }
+
+    lineHeight = ray.drawStart - ray.drawEnd;
+    lineHeight;
+
+    let mapValueMin = offsetDE ? offsetDE : 0;
+    let mapValueMax = offsetDS ? offsetDS : lineHeight;
+
+    for (let i = this.camera.lookY < 0 ? this.camera.lookY : 0; i < lineHeight + (this.camera.lookY > 0 ? this.camera.lookY : 0); i++) {
+      const textureY = Math.floor(
+        mapValue(i,
+          mapValueMin,
+          mapValueMax,
+          0,
+          textureSize
+        )
+      );
+
+      copyPixel(texture, textureX, textureY, textureSize, this.rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + this.camera.lookY), resolutionWidth);
+    }
+  }
+
+  draw(player, walls, objects) {
     const { position, dir } = player;
 
     for (let x = 0; x < resolutionWidth; x++) {
@@ -224,96 +296,21 @@ export default class RaycastRenderer {
       const rayDir = new Vector2d(dir.x + this.camera.planeX * cameraX, dir.y + this.camera.planeY * cameraX);
 
       const [hitWalls] = this.castRays(position, rayDir, walls);
+      const visibleObjects = objects.filter(({ drawStartX, drawEndX }) => {
+        return drawStartX < x && x < drawEndX; 
+      });
 
-      hitWalls.reverse().forEach(hitWall => {
-        const ray = {};
-        ray.dir = rayDir;
+      const elementsToDraw = [...hitWalls, ...visibleObjects].sort((elem1, elem2) => elem2.len - elem1.len);
 
-        let { mapPos, texture } = hitWall;
-        const side = 1;
-
-        ray.perpWallDist = (mapPos.x - position.x) / ray.dir.x;
-
-        let lineHeight = Math.floor(Math.abs(resolutionHeight / ray.perpWallDist));
-
-        ray.drawStart = (resolutionHeight + lineHeight) / 2;
-        ray.drawEnd = ray.drawStart - lineHeight;
-
-        let wallX;
-        if (side === 0) {
-          wallX = position.y + ray.perpWallDist * ray.dir.y;
-        } else {
-          wallX = position.x + ray.perpWallDist * ray.dir.x;
+      elementsToDraw.forEach(element => {
+        if (element.type === 'WALL') {
+          this.drawWall(player, element, x, rayDir);
+          return;
         }
 
-        wallX -= Math.floor(wallX);
-
-        const textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
-
-        let offsetDS = 0;
-        if (ray.drawStart > resolutionHeight) {
-          offsetDS = ray.drawStart;
-          ray.drawStart = resolutionHeight;
-        }
-
-        let offsetDE = 0;
-        if (ray.drawEnd < 0) {
-          offsetDE = ray.drawEnd;
-          ray.drawEnd = 0;
-        }
-
-        lineHeight = ray.drawStart - ray.drawEnd;
-        lineHeight;
-
-        let mapValueMin = offsetDE ? offsetDE : 0;
-        let mapValueMax = offsetDS ? offsetDS : lineHeight;
-
-        const objectsToDraw = objects.filter(obj => {
-          return obj.drawStartX === Math.floor(ray.drawStart);
-        });
-
-        const drawAheadWall = objectsToDraw.filter(obj => obj.len < ray.perpWallDist);
-        // const drawBehindWall = objectToDraw.filter(obj => obj.len > ray.perpWallDist);
-
-        if (drawAheadWall.length) {
-          drawAheadWall.forEach(({
-            drawStartX,
-            drawEndX,
-            drawStartY,
-            drawEndY,
-            spriteScreenX, 
-            spriteWidth,
-            spriteHeight,
-            transformY,
-            texWidth,
-            texHeight,
-            vMoveScreen,
-            obj,
-          }) => {
-            console.log('draw');
-            const texX = Math.floor(256 * (x - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
-            if (transformY > 0) {
-              for(let y = Math.floor(drawStartY); y < drawEndY; y++) {
-                const d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
-                const texY = ((d * texHeight) / spriteHeight) / 256;
-
-                copyPixel(obj.texture, texX, texY, textureSize, this.rayCastingImageData, x, y, resolutionWidth);
-              }
-            }
-          });
-        }
-
-        for (let i = this.camera.lookY < 0 ? this.camera.lookY : 0; i < lineHeight + (this.camera.lookY > 0 ? this.camera.lookY : 0); i++) {
-          const textureY = Math.floor(
-            mapValue(i,
-              mapValueMin,
-              mapValueMax,
-              0,
-              textureSize
-            )
-          );
-
-          copyPixel(texture, textureX, textureY, textureSize, this.rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + this.camera.lookY), resolutionWidth);
+        if (element.type === 'OBJECT') {
+          this.drawObject(element, x);
+          return;
         }
       });
     }
@@ -322,8 +319,8 @@ export default class RaycastRenderer {
   update(player, objects, walls) {
     this.rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);
     this.ctx.clearRect(0, 0, 800, 400);
-    const sortedObjects = this.drawObjects(player, objects);
-    this.drawWalls(player, walls, sortedObjects);
+    const preparedObjects = this.prepareObjectToDraw(player, objects);
+    this.draw(player, walls, preparedObjects);
     this.ctx.putImageData(this.rayCastingImageData, 0, 0);
   }
 }
