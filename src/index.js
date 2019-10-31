@@ -5,18 +5,34 @@ import { getImageDataFromImage, copyPixel } from './imageData.helper';
 import { playerMovementSpeed } from './config';
 import RaycastRenderer from './raycastRenderer';
 
+const player = {
+  position: new Vector2d(20, 20),
+  dir: new Vector2d(1, -1),
+};
+
 const walls = [
   {
-    v1: new Vector2d(40, 10),
-    v2: new Vector2d(80, 60),
-    height: 4,
+    v1: new Vector2d(30, 0),
+    v2: new Vector2d(30, 30),
+  },
+  {
+    v1: new Vector2d(30, 30),
+    v2: new Vector2d(0, 30),
+  },
+  {
+    v1: new Vector2d(0, 30),
+    v2: new Vector2d(0, 0),
+  },
+  {
+    v1: new Vector2d(0, 0),
+    v2: new Vector2d(30, 0),
   },
 ];
 
 const objects = [
   {
     id: 0,
-    pos: new Vector2d(42, 18),
+    pos: new Vector2d(15, 15),
     type: 'AMMO',
     vMove: -160,
     uDiv: 4,
@@ -24,9 +40,17 @@ const objects = [
   },
   {
     id: 1,
-    pos: new Vector2d(5, 17),
+    pos: new Vector2d(25, 17),
     type: 'AMMO',
     vMove: 160,
+    uDiv: 4,
+    vDiv: 4
+  },
+  {
+    id: 2,
+    pos: new Vector2d(5, 15),
+    type: 'AMMO',
+    vMove: 0,
     uDiv: 4,
     vDiv: 4
   },
@@ -71,11 +95,6 @@ canvas.addEventListener('mousedown', () => {
 
 InputManager.init('#game-canvas');
 
-const player = {
-  position: new Vector2d(40, 22),
-  dir: new Vector2d(1, -1),
-};
-
 const playerMovement = () => {
   if (InputManager.keys[87] && InputManager.keys[87].isDown) {
     player.position.y += player.dir.y * playerMovementSpeed;
@@ -108,6 +127,9 @@ const loadAsset = (src) => {
 loadAsset('Wall.png').then((asset) => {
   const wallImageData = getImageDataFromImage(asset);
   walls[0].texture = wallImageData;
+  walls[1].texture = wallImageData;
+  walls[2].texture = wallImageData;
+  walls[3].texture = wallImageData;
   return loadAsset('Floor.png')
 }).then(asset => {
   // floorImageData = getImageDataFromImage(asset);

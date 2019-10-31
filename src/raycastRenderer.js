@@ -236,7 +236,6 @@ export default class RaycastRenderer {
     ray.dir = rayDir;
 
     let { mapPos, texture } = wall;
-    const side = 1;
 
     ray.perpWallDist = (mapPos.x - position.x) / ray.dir.x;
 
@@ -245,13 +244,8 @@ export default class RaycastRenderer {
     ray.drawStart = (resolutionHeight + lineHeight) / 2;
     ray.drawEnd = ray.drawStart - lineHeight;
 
-    let wallX;
-    if (side === 0) {
-      wallX = position.y + ray.perpWallDist * ray.dir.y;
-    } else {
-      wallX = position.x + ray.perpWallDist * ray.dir.x;
-    }
-
+    let wallX = position.y + ray.perpWallDist * ray.dir.y;
+    wallX += position.x + ray.perpWallDist * ray.dir.x;
     wallX -= Math.floor(wallX);
 
     const textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
