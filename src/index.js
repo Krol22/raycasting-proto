@@ -132,10 +132,10 @@ loadAsset('Wall.png').then((asset) => {
   walls[3].texture = wallImageData;
   return loadAsset('Floor.png')
 }).then(asset => {
-  // floorImageData = getImageDataFromImage(asset);
+  window.floorImageData = getImageDataFromImage(asset);
   return loadAsset('Celling.png')
 }).then(asset => {
-  // celingImageData = getImageDataFromImage(asset);
+  window.celingImageData = getImageDataFromImage(asset);
   return loadAsset('Ammo.png')
 }).then(asset => {
   const ammoImageData = getImageDataFromImage(asset);

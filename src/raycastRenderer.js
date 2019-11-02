@@ -82,60 +82,6 @@ export default class RaycastRenderer {
     return [hitWalls];
   }
 
-// function drawFloorInLowerWalls(backWall, window.playerPos, ray, stepX, stepY, x) {
-  // const { dir, drawEnd } = ray;
-//
-  // let backWallPerpWallDist;
-  // let backWallMapPos = backWall.mapPos;
-  // if (backWall.side === 0) {
-    // backWallPerpWallDist = (backWallMapPos.x - window.playerPos.x + (1 - stepX) / 2) / dir.x;
-  // } else {
-    // backWallPerpWallDist = (backWallMapPos.y - window.playerPos.y + (1 - stepY) / 2) / dir.y;
-  // }
-//
-  // let backWallFloorLineHeigth = Math.floor(Math.abs(resolutionHeight / backWallPerpWallDist));
-  // let floorStart = resolutionHeight / 2 + backWallFloorLineHeigth / 2;
-  // let floorEnd = floorStart - backWallFloorLineHeigth / 3;
-  // ctx.fillStyle = 'blue';
-  // ctx.fillRect(x, floorEnd, 1, drawEnd - floorEnd);
-// }
-
-  // drawFloorAndCeling(mapPos, side, wallX, ray, x) {
-    // const { perpWallDist, drawStart, dir } = ray;
-    // let floorXWall;
-    // let floorYWall;
-//
-    // if(side === 0 && dir.x > 0) {
-      // floorXWall = mapPos.x;
-      // floorYWall = mapPos.y + wallX;
-    // } else if(side === 0 && dir.x < 0) {
-      // floorXWall = mapPos.x + 1.0;
-      // floorYWall = mapPos.y + wallX;
-    // } else if(side === 1 && dir.y > 0) {
-      // floorXWall = mapPos.x + wallX;
-      // floorYWall = mapPos.y;
-    // } else {
-      // floorXWall = mapPos.x + wallX;
-      // floorYWall = mapPos.y + 1.0;
-    // }
-//
-    // for (let y = Math.floor(drawStart); y < resolutionHeight + Math.abs(this.camera.lookY); y++) {
-      // const currentDist = resolutionHeight / (2 * y - resolutionHeight);
-      // const weight = currentDist / perpWallDist;
-//
-      // const currentFloorX = (weight * floorXWall + (1 - weight) * playerPos.x);
-      // const currentFloorY = (weight * floorYWall + (1 - weight) * playerPos.y);
-//
-      // const floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
-      // const floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
-//
-      // const alpha = Math.floor(mapValue(currentDist, 0, 7, 255, 0));
-//
-      // copyPixel(floorImageData, floorTexX, floorTexY, textureSize, this.rayCastingImageData, x, y + camera.lookY, resolutionWidth, alpha);
-      // copyPixel(celingImageData, floorTexX, floorTexY, textureSize, this.rayCastingImageData, x, resolutionHeight - y + camera.lookY, resolutionWidth, alpha);
-    // }
-  // }
-//
   prepareObjectToDraw(player, objects) {
     const { position, dir } = player;
     const { planeX, planeY, lookY } = this.camera;
@@ -204,6 +150,45 @@ export default class RaycastRenderer {
       });
   }
 
+  drawFloor(player, element, ray, x) {
+    const { mapPos } = element;
+    const { position } = player;
+    const { perpWallDist, drawStart } = ray;
+
+    for (let y = drawStart; y < resolutionHeight + Math.abs(this.camera.lookY); y++) {
+      const currentDist = resolutionHeight / (2 * y - resolutionHeight);
+      const weight = currentDist / perpWallDist;
+
+      const currentFloorX = (weight * mapPos.x + (1 - weight) * position.x);
+      const currentFloorY = (weight * mapPos.y + (1 - weight) * position.y);
+
+      const floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
+      const floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
+
+      copyPixel(window.floorImageData, floorTexX, floorTexY, textureSize, this.rayCastingImageData, x, y + this.camera.lookY, resolutionWidth, 255);
+    }
+  }
+
+  drawCeling(player, element, ray, x) {
+    const { mapPos } = element;
+    const { position } = player;
+    const { perpWallDist, drawEnd } = ray;
+
+    for (let y = 0 - Math.abs(this.camera.lookY); y < drawEnd; y++) {
+      const currentDist = resolutionHeight / (resolutionHeight - 2 * y);
+      const weight = currentDist / perpWallDist;
+
+      const currentFloorX = (weight * mapPos.x + (1 - weight) * position.x);
+      const currentFloorY = (weight * mapPos.y + (1 - weight) * position.y);
+
+      const floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
+      const floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
+
+      copyPixel(window.celingImageData, floorTexX, floorTexY, textureSize, this.rayCastingImageData, x, y + this.camera.lookY, resolutionWidth, 255);
+    }
+  }
+
+
   drawObject(object, x) {
     const {
       drawStartY,
@@ -229,7 +214,7 @@ export default class RaycastRenderer {
     }
   }
 
-  drawWall(player, wall, x, rayDir) {
+  drawWall(player, wall, x, rayDir, isClosestWall) {
     const { position } = player;
 
     const ray = {};
@@ -280,6 +265,11 @@ export default class RaycastRenderer {
 
       copyPixel(texture, textureX, textureY, textureSize, this.rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + this.camera.lookY), resolutionWidth);
     }
+
+    if (isClosestWall) {
+      this.drawFloor(player, wall, ray, x);
+      this.drawCeling(player, wall, ray, x);
+    }
   }
 
   draw(player, walls, objects) {
@@ -296,9 +286,17 @@ export default class RaycastRenderer {
 
       const elementsToDraw = [...hitWalls, ...visibleObjects].sort((elem1, elem2) => elem2.len - elem1.len);
 
-      elementsToDraw.forEach(element => {
+      let lastElementIndex = 0;
+      for (let i = elementsToDraw.length - 1; i > 0; i--) {
+        if (elementsToDraw[i].type === 'WALL') {
+          lastElementIndex = i;
+          break;
+        }
+      }
+
+      elementsToDraw.forEach((element, index) => {
         if (element.type === 'WALL') {
-          this.drawWall(player, element, x, rayDir);
+          this.drawWall(player, element, x, rayDir, lastElementIndex === index);
           return;
         }
 
