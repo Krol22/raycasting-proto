@@ -9,6 +9,13 @@ import {
   viewDistanceObjectFix,
 } from './config';
 
+/*
+  TODO:
+  1. Fix performance on floor and celing, 
+     max number of iterations should be 
+     resolutionWidth * resolutionHeight 
+     but it's goes above this number,
+*/
 
 const textureSize = 16;
 
