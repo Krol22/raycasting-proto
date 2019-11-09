@@ -1,25 +1,20 @@
-import { copyPixel } from './imageData.helper';
-import { resolutionWidth, resolutionHeight } from './config';
 import Vector2d from './vector2d';
 
+import { copyPixel } from './imageData.helper';
+import { 
+  resolutionWidth, 
+  resolutionHeight,
+  viewDistance,
+  viewDistanceWallFix,
+  viewDistanceObjectFix,
+} from './config';
+
+
 const textureSize = 16;
+
 const mapValue = (input, a, b, c, d) => {
   return c + ((d - c) / (b - a)) * (input - a);
 };
-
-/*
-const renderType = {
-  WALL: 'WALL',
-  OBJECT: 'OBJECT'
-};
-
-TODO: 
-
-1. sort ALL objects that will be rendered by length from player/camera position,
-1.5 FUCK! I need to change drawObject method because now it's just drawing object, there is no ray casting
-1.6 Or I could find a way to merge drawWall and drawObject somehow together? :thinking: 
-2. for each ray (x) draw all objects from further to nearest,
-*/
 
 export default class RaycastRenderer {
   constructor(ctx) {
@@ -67,11 +62,12 @@ export default class RaycastRenderer {
       }
 
       const mapPos = new Vector2d(x1 + t * (x2 - x1), y1 + t * (y2 - y1));
+      const len = Vector2d.magnitude(mapPos, playerPosition);
 
       hitWalls.push({
         id: 4,
         side: 0,
-        len: Vector2d.magnitude(mapPos, playerPosition),
+        len,
         mapPos,
         height,
         texture,
@@ -144,10 +140,7 @@ export default class RaycastRenderer {
 
     });
 
-    return sortedObjects
-      .sort((obj1, obj2) => {
-        return obj1.drawStartX - obj2.drawStartX;
-      });
+    return sortedObjects;
   }
 
   drawFloor(player, element, ray, x) {
@@ -155,17 +148,20 @@ export default class RaycastRenderer {
     const { position } = player;
     const { perpWallDist, drawStart } = ray;
 
-    for (let y = drawStart; y < resolutionHeight + Math.abs(this.camera.lookY); y++) {
+    for (let y = drawStart; y < resolutionHeight - this.camera.lookY; y++) {
       const currentDist = resolutionHeight / (2 * y - resolutionHeight);
+
       const weight = currentDist / perpWallDist;
 
       const currentFloorX = (weight * mapPos.x + (1 - weight) * position.x);
       const currentFloorY = (weight * mapPos.y + (1 - weight) * position.y);
 
-      const floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
-      const floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
+      const floorTexX = ~~(currentFloorX * textureSize) % textureSize;
+      const floorTexY = ~~(currentFloorY * textureSize) % textureSize;
 
-      copyPixel(window.floorImageData, floorTexX, floorTexY, textureSize, this.rayCastingImageData, x, y + this.camera.lookY, resolutionWidth, 255);
+      const alpha = mapValue(currentDist, 0, viewDistance, 255, 0);
+
+      copyPixel(window.floorImageData, floorTexX, floorTexY, textureSize, this.rayCastingImageData, x, y + this.camera.lookY, resolutionWidth, alpha);
     }
   }
 
@@ -174,17 +170,23 @@ export default class RaycastRenderer {
     const { position } = player;
     const { perpWallDist, drawEnd } = ray;
 
-    for (let y = 0 - Math.abs(this.camera.lookY); y < drawEnd; y++) {
+    if (drawEnd < 0) {
+      return;
+    }
+
+    for (let y = 0 - this.camera.lookY; y < drawEnd; y++) {
       const currentDist = resolutionHeight / (resolutionHeight - 2 * y);
       const weight = currentDist / perpWallDist;
 
       const currentFloorX = (weight * mapPos.x + (1 - weight) * position.x);
       const currentFloorY = (weight * mapPos.y + (1 - weight) * position.y);
 
-      const floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
-      const floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
+      const floorTexX = ~~(currentFloorX * textureSize) % textureSize;
+      const floorTexY = ~~(currentFloorY * textureSize) % textureSize;
 
-      copyPixel(window.celingImageData, floorTexX, floorTexY, textureSize, this.rayCastingImageData, x, y + this.camera.lookY, resolutionWidth, 255);
+      const alpha = mapValue(currentDist, 0, viewDistance, 255, 0);
+
+      copyPixel(window.celingImageData, floorTexX, floorTexY, textureSize, this.rayCastingImageData, x, y + this.camera.lookY, resolutionWidth, alpha);
     }
   }
 
@@ -201,7 +203,10 @@ export default class RaycastRenderer {
       texWidth,
       texHeight,
       obj,
+      len,
     } = object;
+
+    const alpha = mapValue(len, 0, viewDistance * viewDistanceObjectFix, 254, 0);
 
     const texX = Math.floor(256 * (x - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
     if (transformY > 0) {
@@ -209,7 +214,7 @@ export default class RaycastRenderer {
         const d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
         const texY = ((d * texHeight) / spriteHeight) / 256;
 
-        copyPixel(obj.texture, texX, texY, textureSize, this.rayCastingImageData, x, y, resolutionWidth);
+        copyPixel(obj.texture, texX, texY, textureSize, this.rayCastingImageData, x, y, resolutionWidth, alpha);
       }
     }
   }
@@ -253,6 +258,8 @@ export default class RaycastRenderer {
     let mapValueMin = offsetDE ? offsetDE : 0;
     let mapValueMax = offsetDS ? offsetDS : lineHeight;
 
+    const alpha = mapValue(Vector2d.magnitude(position, mapPos), 0, viewDistance * viewDistanceWallFix, 255, 0);
+
     for (let i = this.camera.lookY < 0 ? this.camera.lookY : 0; i < lineHeight + (this.camera.lookY > 0 ? this.camera.lookY : 0); i++) {
       const textureY = Math.floor(
         mapValue(i,
@@ -263,7 +270,7 @@ export default class RaycastRenderer {
         )
       );
 
-      copyPixel(texture, textureX, textureY, textureSize, this.rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + this.camera.lookY), resolutionWidth);
+      copyPixel(texture, textureX, textureY, textureSize, this.rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + this.camera.lookY), resolutionWidth, alpha);
     }
 
     if (isClosestWall) {

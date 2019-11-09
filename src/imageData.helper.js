@@ -17,9 +17,7 @@ export const copyPixel = (sourceImageData, sx, sy, ssize, destImageData, dx, dy,
 }
 
 function addPixelToImageData(sourceData, sourceIndex, dest, destIndex, alpha) {
-  if(!sourceData.data[sourceIndex + 3]) {
-    return;
-  }
+  if(!sourceData.data[sourceIndex + 3]) { return; }
 
   dest.data[destIndex] = sourceData.data[sourceIndex];
   dest.data[destIndex + 1] = sourceData.data[sourceIndex + 1];

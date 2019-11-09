@@ -1,8 +1,8 @@
 import Vector2d from './vector2d';
 import { InputManager } from './inputManager';
 
-import { getImageDataFromImage, copyPixel } from './imageData.helper';
-import { playerMovementSpeed } from './config';
+import { getImageDataFromImage } from './imageData.helper';
+import { playerMovementSpeed, cameraMinY, cameraMaxY } from './config';
 import RaycastRenderer from './raycastRenderer';
 
 const player = {
@@ -18,6 +18,15 @@ const walls = [
   {
     v1: new Vector2d(30, 30),
     v2: new Vector2d(0, 30),
+  },
+  {
+    v1: new Vector2d(20, 20),
+    v2: new Vector2d(0, 20),
+  },
+
+  {
+    v1: new Vector2d(10, 10),
+    v2: new Vector2d(0, 10),
   },
   {
     v1: new Vector2d(0, 30),
@@ -66,7 +75,13 @@ const raycastRenderer = new RaycastRenderer(ctx);
 const camera = raycastRenderer.getCamera();
 
 const mouseMove = e => {
-  camera.lookY -= e.movementY;
+  if (
+    e.movementY > 0 && camera.lookY > cameraMinY ||
+    e.movementY < 0 && camera.lookY < cameraMaxY
+  ) {
+    camera.lookY -= e.movementY;
+  }
+
   const rotSpeed = e.movementX / 1000;
 
   const oldDirX = player.dir.x;
@@ -79,7 +94,7 @@ const mouseMove = e => {
 }
 
 let pointerlockvalue = false;
-document.addEventListener('pointerlockchange', event => {
+document.addEventListener('pointerlockchange', () => {
   pointerlockvalue = !pointerlockvalue;
 
   if (pointerlockvalue) {
@@ -126,10 +141,7 @@ const loadAsset = (src) => {
 
 loadAsset('Wall.png').then((asset) => {
   const wallImageData = getImageDataFromImage(asset);
-  walls[0].texture = wallImageData;
-  walls[1].texture = wallImageData;
-  walls[2].texture = wallImageData;
-  walls[3].texture = wallImageData;
+  walls.forEach(wall => wall.texture = wallImageData);
   return loadAsset('Floor.png')
 }).then(asset => {
   window.floorImageData = getImageDataFromImage(asset);
