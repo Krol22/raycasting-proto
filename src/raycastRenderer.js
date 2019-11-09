@@ -31,6 +31,7 @@ export default class RaycastRenderer {
       planeX: 0.62,
       planeY: 0.66,
       lookY: 0,
+      pointingAt: '',
     };
   }
 
@@ -218,6 +219,9 @@ export default class RaycastRenderer {
     const texX = Math.floor(256 * (x - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
     if (transformY > 0) {
       for(let y = Math.floor(drawStartY); y < drawEndY; y++) {
+        if (x === resolutionWidth / 2 && y === resolutionHeight / 2) {
+          this.camera.pointingAt = obj.type;  
+        }
         const d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
         const texY = ((d * texHeight) / spriteHeight) / 256;
 
@@ -323,11 +327,20 @@ export default class RaycastRenderer {
   }
 
   update(player, objects, walls) {
+    this.camera.pointingAt = 'WORLD';
     this.rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);
     this.ctx.clearRect(0, 0, 800, 400);
     const preparedObjects = this.prepareObjectToDraw(player, objects);
     this.draw(player, walls, preparedObjects);
+
     this.ctx.putImageData(this.rayCastingImageData, 0, 0);
+    this.ctx.fillStyle = 'red';
+    this.ctx.fillRect(
+      resolutionWidth / 2 - 2,
+      resolutionHeight / 2 - 2,
+      2,
+      2,
+    );
   }
 }
 

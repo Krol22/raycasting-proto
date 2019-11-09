@@ -5,9 +5,12 @@ import { getImageDataFromImage } from './imageData.helper';
 import { playerMovementSpeed, cameraMinY, cameraMaxY } from './config';
 import RaycastRenderer from './raycastRenderer';
 
+const pointingAtSpan = document.querySelector('#pointing-at');
+
 const player = {
   position: new Vector2d(20, 20),
   dir: new Vector2d(1, -1),
+  pointing: 'nothing',
 };
 
 const walls = [
@@ -126,10 +129,11 @@ const playerMovement = () => {
 const loop = () => {
   playerMovement();
   raycastRenderer.update(player, objects, walls);
+  pointingAtSpan.innerHTML = `${raycastRenderer.getCamera().pointingAt}`;
   window.requestAnimationFrame(loop);
 };
 
-const loadAsset = (src) => {
+const loadAsset = src => {
   return new Promise(resolve => {
     const asset = new Image();
     asset.src = src;
@@ -139,7 +143,7 @@ const loadAsset = (src) => {
   });
 };
 
-loadAsset('Wall.png').then((asset) => {
+loadAsset('Wall.png').then(asset => {
   const wallImageData = getImageDataFromImage(asset);
   walls.forEach(wall => wall.texture = wallImageData);
   return loadAsset('Floor.png')
