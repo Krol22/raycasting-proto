@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <style>html {
+      overflow: hidden;
+      background-color: black;
+      color: white;
+      font-family: 'Courier';
+    }
+    .title {
+      text-align: center;
+    }
+    .game canvas {
+      border: 1px solid red;
+      position: absolute;
+    }
+
+    .game {
+      height: 600px;
+    }</style>
+  <h1 class="title"> Raycasting engine - demo </h1>
+  <div class="game">
+    <canvas id="floor-canvas" width="800" height="600"></canvas>
+    <canvas id="game-canvas" width="800" height="600"></canvas>
+  </div>
+  <div class="desc">
+    <div>
+      <h3>Controls : WS - move , mouse to look</h3>
+      <h3>Currently pointing at: <span id="pointing-at"></span></h3>
+    </div>
+    <div>
+      <h3>Features</h3>
+      <ul>
+        <li>Rendering walls</li>
+        <li>Rendering textured walls</li>
+        <li>Fog / shadow effect</li>
+        <li>Floor / Celing</li>
+        <li>Static objects</li>
+        <li>Free look</li>
+      </ul>
+    </div>
+  </div>
+  <script src="/src.e31bb0bc.js"></script>
+</body>
+</html>

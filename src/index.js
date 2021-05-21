@@ -149,10 +149,7 @@ const loadAsset = src => {
   });
 };
 
-console.log("test")
-
-loadAsset('./Wall.png').then(asset => {
-  console.log("test123");
+loadAsset('Wall.png').then(asset => {
   const wallImageData = getImageDataFromImage(asset);
   walls.forEach(wall => wall.texture = wallImageData);
   return loadAsset('Floor.png')
