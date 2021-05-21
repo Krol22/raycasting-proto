@@ -5,6 +5,11 @@ import {getImageDataFromImage} from './imageData.helper';
 import {playerMovementSpeed, cameraMinY, cameraMaxY} from './config';
 import RaycastRenderer from './raycastRenderer';
 
+import wall from "url:./Wall.png";
+import floor from "url:./Floor.png";
+import celing from "url:./Celling.png";
+import ammo from "url:./Ammo.png";
+
 const pointingAtSpan = document.querySelector('#pointing-at');
 
 const player = {
@@ -149,16 +154,16 @@ const loadAsset = src => {
   });
 };
 
-loadAsset('Wall.png').then(asset => {
+loadAsset(wall).then(asset => {
   const wallImageData = getImageDataFromImage(asset);
   walls.forEach(wall => wall.texture = wallImageData);
-  return loadAsset('Floor.png')
+  return loadAsset(floor)
 }).then(asset => {
   window.floorImageData = getImageDataFromImage(asset);
-  return loadAsset('Celling.png')
+  return loadAsset(celing)
 }).then(asset => {
   window.celingImageData = getImageDataFromImage(asset);
-  return loadAsset('Ammo.png')
+  return loadAsset(ammo)
 }).then(asset => {
   const ammoImageData = getImageDataFromImage(asset);
   objects.forEach(object => {object.texture = ammoImageData})

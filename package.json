@@ -1,12 +1,12 @@
 {
   "devDependencies": {
+    "@parcel/transformer-image": "2.0.0-beta.2",
     "cssnano": "^4.1.10",
-    "eslint": "^6.6.0"
+    "eslint": "^6.6.0",
+    "parcel": "^2.0.0-beta.2",
+    "sharp": "^0.28.2"
   },
   "scripts": {
     "start": "parcel src/index.html --open"
-  },
-  "dependencies": {
-    "parcel": "^2.0.0-beta.2"
   }
 }
