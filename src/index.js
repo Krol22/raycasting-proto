@@ -1,8 +1,8 @@
 import Vector2d from './vector2d';
-import { InputManager } from './inputManager';
+import {InputManager} from './inputManager';
 
-import { getImageDataFromImage } from './imageData.helper';
-import { playerMovementSpeed, cameraMinY, cameraMaxY } from './config';
+import {getImageDataFromImage} from './imageData.helper';
+import {playerMovementSpeed, cameraMinY, cameraMaxY} from './config';
 import RaycastRenderer from './raycastRenderer';
 
 const pointingAtSpan = document.querySelector('#pointing-at');
@@ -134,16 +134,25 @@ const loop = () => {
 };
 
 const loadAsset = src => {
+  console.log(src);
   return new Promise(resolve => {
+    console.log('test123')
     const asset = new Image();
     asset.src = src;
     asset.onload = () => {
       resolve(asset);
     }
+
+    asset.onerror = (err) => {
+      console.log(err);
+    }
   });
 };
 
-loadAsset('Wall.png').then(asset => {
+console.log("test")
+
+loadAsset('./Wall.png').then(asset => {
+  console.log("test123");
   const wallImageData = getImageDataFromImage(asset);
   walls.forEach(wall => wall.texture = wallImageData);
   return loadAsset('Floor.png')
@@ -155,6 +164,6 @@ loadAsset('Wall.png').then(asset => {
   return loadAsset('Ammo.png')
 }).then(asset => {
   const ammoImageData = getImageDataFromImage(asset);
-  objects.forEach(object => { object.texture = ammoImageData })
+  objects.forEach(object => {object.texture = ammoImageData})
   window.requestAnimationFrame(loop);
 });

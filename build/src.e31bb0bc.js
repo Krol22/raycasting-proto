@@ -117,16 +117,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"map.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.map = void 0;
-var map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 0, 0, 0, 5, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
-exports.map = map;
-},{}],"vector2d.js":[function(require,module,exports) {
+})({"vector2d.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -358,7 +349,7 @@ exports.InputManager = InputManager;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.copyPixel = exports.getImageDataFromImage = void 0;
+exports.default = exports.copyPixel = exports.getImageDataFromImage = void 0;
 
 var getImageDataFromImage = function getImageDataFromImage(image) {
   var canvas = document.createElement('canvas');
@@ -395,18 +386,60 @@ function addPixelToImageData(sourceData, sourceIndex, dest, destIndex, alpha) {
     return;
   }
 }
-},{}],"index.js":[function(require,module,exports) {
+
+var _default = {
+  copyPixel: copyPixel,
+  getImageDataFromImage: getImageDataFromImage
+};
+exports.default = _default;
+},{}],"config.js":[function(require,module,exports) {
 "use strict";
 
-var _map = require("./map");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.cameraMaxY = exports.cameraMinY = exports.viewDistanceWallFix = exports.viewDistanceObjectFix = exports.viewDistance = exports.viewSkipDistance = exports.playerMovementSpeed = exports.resolutionHeight = exports.resolutionWidth = void 0;
+var resolutionWidth = 800;
+exports.resolutionWidth = resolutionWidth;
+var resolutionHeight = 600;
+exports.resolutionHeight = resolutionHeight;
+var playerMovementSpeed = 0.1;
+exports.playerMovementSpeed = playerMovementSpeed;
+var viewSkipDistance = 14;
+exports.viewSkipDistance = viewSkipDistance;
+var viewDistance = 14;
+exports.viewDistance = viewDistance;
+var viewDistanceObjectFix = 1.5;
+exports.viewDistanceObjectFix = viewDistanceObjectFix;
+var viewDistanceWallFix = 1.5;
+exports.viewDistanceWallFix = viewDistanceWallFix;
+var cameraMinY = -300;
+exports.cameraMinY = cameraMinY;
+var cameraMaxY = 200;
+exports.cameraMaxY = cameraMaxY;
+},{}],"raycastRenderer.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
 var _vector2d = _interopRequireDefault(require("./vector2d"));
 
-var _inputManager = require("./inputManager");
-
 var _imageData = require("./imageData.helper");
 
+var _config = require("./config");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -416,50 +449,432 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/*
+  TODO:
+  1. Fix performance on floor and celing, 
+     max number of iterations should be 
+     resolutionWidth * resolutionHeight 
+     but it's goes above this number,
+*/
+var textureSize = 16;
+
 var mapValue = function mapValue(input, a, b, c, d) {
   return c + (d - c) / (b - a) * (input - a);
 };
-/*
 
-  Todo: sorting, 
-  Figure out how values vMove, uDiv, vDiv corelates with each other,
+var RaycastRenderer =
+/*#__PURE__*/
+function () {
+  function RaycastRenderer(ctx) {
+    _classCallCheck(this, RaycastRenderer);
 
-*/
+    this.ctx = ctx;
+    this.rayCastingImageData = new ImageData(_config.resolutionWidth, _config.resolutionHeight);
+    this.camera = {
+      planeX: 0.62,
+      planeY: 0.66,
+      lookY: 0,
+      pointingAt: ''
+    };
+  }
 
+  _createClass(RaycastRenderer, [{
+    key: "getCamera",
+    value: function getCamera() {
+      return this.camera;
+    }
+  }, {
+    key: "castRays",
+    value: function castRays(playerPosition, rayDir, walls) {
+      var hitWalls = [];
 
+      for (var i = 0; i < walls.length; i++) {
+        var _walls$i = walls[i],
+            v1 = _walls$i.v1,
+            v2 = _walls$i.v2,
+            height = _walls$i.height,
+            texture = _walls$i.texture;
+        var x1 = v1.x;
+        var y1 = v1.y;
+        var x2 = v2.x;
+        var y2 = v2.y;
+        var x3 = playerPosition.x;
+        var y3 = playerPosition.y;
+        var x4 = playerPosition.x + rayDir.x;
+        var y4 = playerPosition.y + rayDir.y;
+        var den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+        if (den === 0) {
+          continue;
+        }
+
+        var t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
+        var u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
+
+        if (t <= 0 || t >= 1 || u <= 0) {
+          continue;
+        }
+
+        var mapPos = new _vector2d.default(x1 + t * (x2 - x1), y1 + t * (y2 - y1));
+
+        var len = _vector2d.default.magnitude(mapPos, playerPosition);
+
+        hitWalls.push({
+          id: 4,
+          side: 0,
+          len: len,
+          mapPos: mapPos,
+          height: height,
+          texture: texture,
+          type: 'WALL'
+        });
+      }
+
+      return [hitWalls];
+    }
+  }, {
+    key: "prepareObjectToDraw",
+    value: function prepareObjectToDraw(player, objects) {
+      var position = player.position,
+          dir = player.dir;
+      var _this$camera = this.camera,
+          planeX = _this$camera.planeX,
+          planeY = _this$camera.planeY,
+          lookY = _this$camera.lookY;
+      var sortedObjects = [];
+      var texWidth = 16;
+      var texHeight = 16;
+      objects.sort(function (obj1, obj2) {
+        var len = _vector2d.default.magnitude(obj1.pos, position);
+
+        var len2 = _vector2d.default.magnitude(obj2.pos, position);
+
+        return len2 - len;
+      }).forEach(function (obj) {
+        var _obj$uDiv = obj.uDiv,
+            uDiv = _obj$uDiv === void 0 ? 1 : _obj$uDiv,
+            _obj$vDiv = obj.vDiv,
+            vDiv = _obj$vDiv === void 0 ? 1 : _obj$vDiv,
+            _obj$vMove = obj.vMove,
+            vMove = _obj$vMove === void 0 ? 0 : _obj$vMove;
+        var spriteX = obj.pos.x - position.x;
+        var spriteY = obj.pos.y - position.y;
+        var invDet = 1 / (planeX * dir.y - dir.x * planeY);
+        var transformX = invDet * (dir.y * spriteX - dir.x * spriteY);
+        var transformY = invDet * (-planeY * spriteX + planeX * spriteY);
+
+        var len = _vector2d.default.magnitude(obj.pos, position);
+
+        var spriteScreenX = Math.floor(_config.resolutionWidth / 2 * (1 + transformX / transformY));
+        var vMoveScreen = Math.floor(vMove / transformY) + lookY;
+        var spriteHeight = Math.abs(Math.floor(_config.resolutionHeight / transformY)) / vDiv;
+        var drawStartY = -spriteHeight / 2 + _config.resolutionHeight / 2 + vMoveScreen;
+        if (drawStartY < 0 - lookY) drawStartY = 0;
+        var drawEndY = spriteHeight / 2 + _config.resolutionHeight / 2 + vMoveScreen;
+        if (drawEndY >= _config.resolutionHeight - lookY) drawEndY = _config.resolutionHeight - 1;
+        var spriteWidth = Math.abs(Math.floor(_config.resolutionHeight / transformY)) / uDiv;
+        var drawStartX = -spriteWidth / 2 + spriteScreenX;
+        if (drawStartX < 0) drawStartX = 0;
+        var drawEndX = spriteWidth / 2 + spriteScreenX;
+        if (drawEndX >= _config.resolutionWidth) drawEndX = _config.resolutionHeight - 1;
+        sortedObjects.push({
+          drawStartX: Math.floor(drawStartX),
+          drawEndX: Math.floor(drawEndX),
+          drawStartY: drawStartY,
+          drawEndY: drawEndY,
+          vMoveScreen: vMoveScreen,
+          obj: obj,
+          len: len,
+          spriteScreenX: spriteScreenX,
+          spriteWidth: spriteWidth,
+          spriteHeight: spriteHeight,
+          transformY: transformY,
+          texWidth: texWidth,
+          texHeight: texHeight,
+          type: 'OBJECT'
+        });
+      });
+      return sortedObjects;
+    }
+  }, {
+    key: "drawFloor",
+    value: function drawFloor(player, element, ray, x) {
+      var mapPos = element.mapPos;
+      var position = player.position;
+      var perpWallDist = ray.perpWallDist,
+          drawStart = ray.drawStart;
+
+      for (var y = drawStart; y < _config.resolutionHeight - this.camera.lookY; y++) {
+        var currentDist = _config.resolutionHeight / (2 * y - _config.resolutionHeight);
+        var weight = currentDist / perpWallDist;
+        var currentFloorX = weight * mapPos.x + (1 - weight) * position.x;
+        var currentFloorY = weight * mapPos.y + (1 - weight) * position.y;
+        var floorTexX = ~~(currentFloorX * textureSize) % textureSize;
+        var floorTexY = ~~(currentFloorY * textureSize) % textureSize;
+        var alpha = mapValue(currentDist, 0, _config.viewDistance, 255, 0);
+        (0, _imageData.copyPixel)(window.floorImageData, floorTexX, floorTexY, textureSize, this.rayCastingImageData, x, y + this.camera.lookY, _config.resolutionWidth, alpha);
+      }
+    }
+  }, {
+    key: "drawCeling",
+    value: function drawCeling(player, element, ray, x) {
+      var mapPos = element.mapPos;
+      var position = player.position;
+      var perpWallDist = ray.perpWallDist,
+          drawEnd = ray.drawEnd;
+
+      if (drawEnd < 0) {
+        return;
+      }
+
+      for (var y = 0 - this.camera.lookY; y < drawEnd; y++) {
+        var currentDist = _config.resolutionHeight / (_config.resolutionHeight - 2 * y);
+        var weight = currentDist / perpWallDist;
+        var currentFloorX = weight * mapPos.x + (1 - weight) * position.x;
+        var currentFloorY = weight * mapPos.y + (1 - weight) * position.y;
+        var floorTexX = ~~(currentFloorX * textureSize) % textureSize;
+        var floorTexY = ~~(currentFloorY * textureSize) % textureSize;
+        var alpha = mapValue(currentDist, 0, _config.viewDistance, 255, 0);
+        (0, _imageData.copyPixel)(window.celingImageData, floorTexX, floorTexY, textureSize, this.rayCastingImageData, x, y + this.camera.lookY, _config.resolutionWidth, alpha);
+      }
+    }
+  }, {
+    key: "drawObject",
+    value: function drawObject(object, x) {
+      var drawStartY = object.drawStartY,
+          drawEndY = object.drawEndY,
+          vMoveScreen = object.vMoveScreen,
+          spriteScreenX = object.spriteScreenX,
+          spriteWidth = object.spriteWidth,
+          spriteHeight = object.spriteHeight,
+          transformY = object.transformY,
+          texWidth = object.texWidth,
+          texHeight = object.texHeight,
+          obj = object.obj,
+          len = object.len;
+      var alpha = mapValue(len, 0, _config.viewDistance * _config.viewDistanceObjectFix, 254, 0);
+      var texX = Math.floor(256 * (x - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
+
+      if (transformY > 0) {
+        for (var y = Math.floor(drawStartY); y < drawEndY; y++) {
+          if (x === _config.resolutionWidth / 2 && y === _config.resolutionHeight / 2) {
+            this.camera.pointingAt = obj.type;
+          }
+
+          var d = (y - vMoveScreen) * 256 - _config.resolutionHeight * 128 + spriteHeight * 128;
+          var texY = d * texHeight / spriteHeight / 256;
+          (0, _imageData.copyPixel)(obj.texture, texX, texY, textureSize, this.rayCastingImageData, x, y, _config.resolutionWidth, alpha);
+        }
+      }
+    }
+  }, {
+    key: "drawWall",
+    value: function drawWall(player, wall, x, rayDir, isClosestWall) {
+      var position = player.position;
+      var ray = {};
+      ray.dir = rayDir;
+      var mapPos = wall.mapPos,
+          texture = wall.texture;
+      ray.perpWallDist = (mapPos.x - position.x) / ray.dir.x;
+      var lineHeight = Math.floor(Math.abs(_config.resolutionHeight / ray.perpWallDist));
+      ray.drawStart = (_config.resolutionHeight + lineHeight) / 2;
+      ray.drawEnd = ray.drawStart - lineHeight;
+      var wallX = position.y + ray.perpWallDist * ray.dir.y;
+      wallX += position.x + ray.perpWallDist * ray.dir.x;
+      wallX -= Math.floor(wallX);
+      var textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
+      var offsetDS = 0;
+
+      if (ray.drawStart > _config.resolutionHeight) {
+        offsetDS = ray.drawStart;
+        ray.drawStart = _config.resolutionHeight;
+      }
+
+      var offsetDE = 0;
+
+      if (ray.drawEnd < 0) {
+        offsetDE = ray.drawEnd;
+        ray.drawEnd = 0;
+      }
+
+      lineHeight = ray.drawStart - ray.drawEnd;
+      lineHeight;
+      var mapValueMin = offsetDE ? offsetDE : 0;
+      var mapValueMax = offsetDS ? offsetDS : lineHeight;
+      var alpha = mapValue(_vector2d.default.magnitude(position, mapPos), 0, _config.viewDistance * _config.viewDistanceWallFix, 255, 0);
+
+      for (var i = this.camera.lookY < 0 ? this.camera.lookY : 0; i < lineHeight + (this.camera.lookY > 0 ? this.camera.lookY : 0); i++) {
+        var textureY = Math.floor(mapValue(i, mapValueMin, mapValueMax, 0, textureSize));
+        (0, _imageData.copyPixel)(texture, textureX, textureY, textureSize, this.rayCastingImageData, Math.floor(x), Math.floor(ray.drawStart - i + this.camera.lookY), _config.resolutionWidth, alpha);
+      }
+
+      if (isClosestWall) {
+        this.drawFloor(player, wall, ray, x);
+        this.drawCeling(player, wall, ray, x);
+      }
+    }
+  }, {
+    key: "draw",
+    value: function draw(player, walls, objects) {
+      var _this = this;
+
+      var position = player.position,
+          dir = player.dir;
+
+      var _loop = function _loop(x) {
+        var cameraX = 2 * x / _config.resolutionWidth - 1;
+        var rayDir = new _vector2d.default(dir.x + _this.camera.planeX * cameraX, dir.y + _this.camera.planeY * cameraX);
+
+        var _this$castRays = _this.castRays(position, rayDir, walls),
+            _this$castRays2 = _slicedToArray(_this$castRays, 1),
+            hitWalls = _this$castRays2[0];
+
+        var visibleObjects = objects.filter(function (_ref) {
+          var drawStartX = _ref.drawStartX,
+              drawEndX = _ref.drawEndX;
+          return drawStartX < x && x < drawEndX;
+        });
+        var elementsToDraw = [].concat(_toConsumableArray(hitWalls), _toConsumableArray(visibleObjects)).sort(function (elem1, elem2) {
+          return elem2.len - elem1.len;
+        });
+        var lastElementIndex = 0;
+
+        for (var i = elementsToDraw.length - 1; i > 0; i--) {
+          if (elementsToDraw[i].type === 'WALL') {
+            lastElementIndex = i;
+            break;
+          }
+        }
+
+        elementsToDraw.forEach(function (element, index) {
+          if (element.type === 'WALL') {
+            _this.drawWall(player, element, x, rayDir, lastElementIndex === index);
+
+            return;
+          }
+
+          if (element.type === 'OBJECT') {
+            _this.drawObject(element, x);
+
+            return;
+          }
+        });
+      };
+
+      for (var x = 0; x < _config.resolutionWidth; x++) {
+        _loop(x);
+      }
+    }
+  }, {
+    key: "update",
+    value: function update(player, objects, walls) {
+      this.camera.pointingAt = 'WORLD';
+      this.rayCastingImageData = new ImageData(_config.resolutionWidth, _config.resolutionHeight);
+      this.ctx.clearRect(0, 0, 800, 400);
+      var preparedObjects = this.prepareObjectToDraw(player, objects);
+      this.draw(player, walls, preparedObjects);
+      this.ctx.putImageData(this.rayCastingImageData, 0, 0);
+      this.ctx.fillStyle = 'red';
+      this.ctx.fillRect(_config.resolutionWidth / 2 - 2, _config.resolutionHeight / 2 - 2, 2, 2);
+    }
+  }]);
+
+  return RaycastRenderer;
+}();
+
+exports.default = RaycastRenderer;
+},{"./vector2d":"vector2d.js","./imageData.helper":"imageData.helper.js","./config":"config.js"}],"index.js":[function(require,module,exports) {
+"use strict";
+
+var _vector2d = _interopRequireDefault(require("./vector2d"));
+
+var _inputManager = require("./inputManager");
+
+var _imageData = require("./imageData.helper");
+
+var _config = require("./config");
+
+var _raycastRenderer = _interopRequireDefault(require("./raycastRenderer"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var pointingAtSpan = document.querySelector('#pointing-at');
+var player = {
+  position: new _vector2d.default(20, 20),
+  dir: new _vector2d.default(1, -1),
+  pointing: 'nothing'
+};
+var walls = [{
+  v1: new _vector2d.default(30, 0),
+  v2: new _vector2d.default(30, 30)
+}, {
+  v1: new _vector2d.default(30, 30),
+  v2: new _vector2d.default(0, 30)
+}, {
+  v1: new _vector2d.default(20, 20),
+  v2: new _vector2d.default(0, 20)
+}, {
+  v1: new _vector2d.default(10, 10),
+  v2: new _vector2d.default(0, 10)
+}, {
+  v1: new _vector2d.default(0, 30),
+  v2: new _vector2d.default(0, 0)
+}, {
+  v1: new _vector2d.default(0, 0),
+  v2: new _vector2d.default(30, 0)
+}];
 var objects = [{
-  pos: new _vector2d.default(11, 18),
+  id: 0,
+  pos: new _vector2d.default(15, 15),
   type: 'AMMO',
   vMove: -160,
   uDiv: 4,
   vDiv: 4
 }, {
-  pos: new _vector2d.default(11, 20),
+  id: 1,
+  pos: new _vector2d.default(25, 17),
   type: 'AMMO',
   vMove: 160,
   uDiv: 4,
   vDiv: 4
+}, {
+  id: 2,
+  pos: new _vector2d.default(5, 15),
+  type: 'AMMO',
+  vMove: 0,
+  uDiv: 4,
+  vDiv: 4
 }];
-var ctx = document.querySelector('#game-canvas').getContext('2d');
-var floorCtx = document.querySelector('#floor-canvas').getContext('2d');
+var canvas = document.querySelector('#game-canvas');
+var ctx = canvas.getContext('2d');
 ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
-var canvas = document.querySelector('#game-canvas');
+var raycastRenderer = new _raycastRenderer.default(ctx);
+var camera = raycastRenderer.getCamera();
 
 var mouseMove = function mouseMove(e) {
-  playerLookY -= e.movementY;
-  var rotSpeed = -e.movementX / 1000;
-  var oldDirX = playerDir.x;
-  playerDir.x = playerDir.x * Math.cos(rotSpeed) - playerDir.y * Math.sin(rotSpeed);
-  playerDir.y = oldDirX * Math.sin(rotSpeed) + playerDir.y * Math.cos(rotSpeed);
-  var oldPlaneX = planeX;
-  planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
-  planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
+  if (e.movementY > 0 && camera.lookY > _config.cameraMinY || e.movementY < 0 && camera.lookY < _config.cameraMaxY) {
+    camera.lookY -= e.movementY;
+  }
+
+  var rotSpeed = e.movementX / 1000;
+  var oldDirX = player.dir.x;
+  player.dir.x = player.dir.x * Math.cos(rotSpeed) - player.dir.y * Math.sin(rotSpeed);
+  player.dir.y = oldDirX * Math.sin(rotSpeed) + player.dir.y * Math.cos(rotSpeed);
+  var oldPlaneX = camera.planeX;
+  camera.planeX = camera.planeX * Math.cos(rotSpeed) - camera.planeY * Math.sin(rotSpeed);
+  camera.planeY = oldPlaneX * Math.sin(rotSpeed) + camera.planeY * Math.cos(rotSpeed);
 };
 
 var pointerlockvalue = false;
-document.addEventListener('pointerlockchange', function (event) {
+document.addEventListener('pointerlockchange', function () {
   pointerlockvalue = !pointerlockvalue;
 
   if (pointerlockvalue) {
@@ -474,355 +889,64 @@ canvas.addEventListener('mousedown', function () {
 
 _inputManager.InputManager.init('#game-canvas');
 
-var textureSize = 16;
-var playerPos = new _vector2d.default(12, 18);
-var playerDir = new _vector2d.default(-1, 0);
-var playerLookY = 100;
-var planeX = 0.0;
-var planeY = 0.66;
-var rayCastingImageData;
-var floorImageData;
-var celingImageData;
-var ammoImageData;
-var wallImageData;
-
-function drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x) {
-  var dir = ray.dir,
-      drawEnd = ray.drawEnd;
-  var backWallPerpWallDist;
-  var backWallMapPos = backWall.mapPos;
-
-  if (backWall.side === 0) {
-    backWallPerpWallDist = (backWallMapPos.x - playerPos.x + (1 - stepX) / 2) / dir.x;
-  } else {
-    backWallPerpWallDist = (backWallMapPos.y - playerPos.y + (1 - stepY) / 2) / dir.y;
-  }
-
-  var backWallFloorLineHeigth = Math.floor(Math.abs(resolutionHeight / backWallPerpWallDist));
-  var floorStart = resolutionHeight / 2 + backWallFloorLineHeigth / 2;
-  var floorEnd = floorStart - backWallFloorLineHeigth / 3;
-  ctx.fillStyle = 'blue';
-  ctx.fillRect(x, floorEnd, 1, drawEnd - floorEnd);
-}
-
-function drawFloorAndCeling(mapPos, side, wallX, ray, x) {
-  var perpWallDist = ray.perpWallDist,
-      drawStart = ray.drawStart,
-      dir = ray.dir;
-  var floorXWall;
-  var floorYWall;
-
-  if (side === 0 && dir.x > 0) {
-    floorXWall = mapPos.x;
-    floorYWall = mapPos.y + wallX;
-  } else if (side === 0 && dir.x < 0) {
-    floorXWall = mapPos.x + 1.0;
-    floorYWall = mapPos.y + wallX;
-  } else if (side === 1 && dir.y > 0) {
-    floorXWall = mapPos.x + wallX;
-    floorYWall = mapPos.y;
-  } else {
-    floorXWall = mapPos.x + wallX;
-    floorYWall = mapPos.y + 1.0;
-  }
-
-  for (var y = Math.floor(drawStart); y < resolutionHeight + Math.abs(playerLookY); y++) {
-    var currentDist = resolutionHeight / (2 * y - resolutionHeight);
-    var weight = currentDist / perpWallDist;
-    var currentFloorX = weight * floorXWall + (1 - weight) * playerPos.x;
-    var currentFloorY = weight * floorYWall + (1 - weight) * playerPos.y;
-    var floorTexX = Math.floor(currentFloorX * textureSize) % textureSize;
-    var floorTexY = Math.floor(currentFloorY * textureSize) % textureSize;
-    var alpha = Math.floor(mapValue(currentDist, 0, 7, 255, 0));
-    (0, _imageData.copyPixel)(floorImageData, floorTexX, floorTexY, textureSize, rayCastingImageData, x, y + playerLookY, resolutionWidth, alpha);
-    (0, _imageData.copyPixel)(celingImageData, floorTexX, floorTexY, textureSize, rayCastingImageData, x, resolutionHeight - y + playerLookY, resolutionWidth, alpha);
-  }
-}
-
-function DDA(rayDir) {
-  var hitWalls = [];
-  var mapPos = new _vector2d.default(Math.floor(playerPos.x), Math.floor(playerPos.y));
-  var side;
-  var sideDistX, sideDistY;
-  var stepX, stepY;
-  var deltaDistX = Math.sqrt(1 + rayDir.y * rayDir.y / (rayDir.x * rayDir.x));
-  var deltaDistY = Math.sqrt(1 + rayDir.x * rayDir.x / (rayDir.y * rayDir.y));
-
-  if (rayDir.x < 0) {
-    stepX = -1;
-    sideDistX = (playerPos.x - mapPos.x) * deltaDistX;
-  } else {
-    stepX = 1;
-    sideDistX = (mapPos.x + 1 - playerPos.x) * deltaDistX;
-  }
-
-  if (rayDir.y < 0) {
-    stepY = -1;
-    sideDistY = (playerPos.y - mapPos.y) * deltaDistY;
-  } else {
-    stepY = 1;
-    sideDistY = (mapPos.y + 1 - playerPos.y) * deltaDistY;
-  }
-
-  while (true) {
-    if (sideDistX < sideDistY) {
-      sideDistX += deltaDistX;
-      mapPos.x += stepX;
-      mapPos.x = Math.floor(mapPos.x);
-      side = 0;
-    } else {
-      sideDistY += deltaDistY;
-      mapPos.y += stepY;
-      mapPos.y = Math.floor(mapPos.y);
-      side = 1;
-    }
-
-    if (_map.map[mapPos.x][mapPos.y] > 0) {
-      var newWall = {
-        mapPos: new _vector2d.default(mapPos.x, mapPos.y),
-        value: _map.map[mapPos.x][mapPos.y],
-        side: side
-      };
-      var backWallX = mapPos.x;
-      var backWallY = mapPos.y;
-      var backWallSide = void 0;
-
-      if (sideDistX < sideDistY) {
-        backWallX += stepX;
-        backWallX = Math.floor(backWallX);
-        backWallSide = 0;
-      } else {
-        backWallY += stepY;
-        backWallY = Math.floor(backWallY);
-        backWallSide = 1;
-      }
-
-      var backWall = {
-        mapPos: new _vector2d.default(backWallX, backWallY),
-        side: backWallSide,
-        value: 3
-      };
-      newWall.backWall = backWall;
-      hitWalls.push(newWall);
-
-      if (_map.map[mapPos.x][mapPos.y] !== 3) {
-        break;
-      }
-    }
-  }
-
-  return [hitWalls, stepX, stepY];
-}
-
-var resolutionWidth = 800;
-var resolutionHeight = 400;
-
-var drawObjects = function drawObjects() {
-  objects.forEach(function (obj) {
-    var _obj$uDiv = obj.uDiv,
-        uDiv = _obj$uDiv === void 0 ? 1 : _obj$uDiv,
-        _obj$vDiv = obj.vDiv,
-        vDiv = _obj$vDiv === void 0 ? 1 : _obj$vDiv,
-        _obj$vMove = obj.vMove,
-        vMove = _obj$vMove === void 0 ? 0 : _obj$vMove;
-    var spriteX = obj.pos.x - playerPos.x;
-    var spriteY = obj.pos.y - playerPos.y;
-
-    if (spriteX === 0 && spriteY === 0) {
-      return;
-    }
-
-    var invDet = 1 / (planeX * playerDir.y - playerDir.x * planeY);
-    var transformX = invDet * (playerDir.y * spriteX - playerDir.x * spriteY);
-    var transformY = invDet * (-planeY * spriteX + planeX * spriteY);
-    var spriteScreenX = Math.floor(resolutionWidth / 2 * (1 + transformX / transformY));
-    var vMoveScreen = Math.floor(vMove / transformY) + playerLookY;
-    var texWidth = 16;
-    var texHeight = 16;
-    var spriteHeight = Math.abs(Math.floor(resolutionHeight / transformY)) / vDiv;
-    var drawStartY = -spriteHeight / 2 + resolutionHeight / 2 + vMoveScreen;
-    if (drawStartY < 0 - playerLookY) drawStartY = 0;
-    var drawEndY = spriteHeight / 2 + resolutionHeight / 2 + vMoveScreen;
-    if (drawEndY >= resolutionHeight - playerLookY) drawEndY = resolutionHeight - 1;
-    var spriteWidth = Math.abs(Math.floor(resolutionHeight / transformY)) / uDiv;
-    var drawStartX = -spriteWidth / 2 + spriteScreenX;
-    if (drawStartX < 0) drawStartX = 0;
-    var drawEndX = spriteWidth / 2 + spriteScreenX;
-    if (drawEndX >= resolutionWidth) drawEndX = resolutionHeight - 1;
-
-    for (var stripe = Math.floor(drawStartX); stripe < drawEndX; stripe++) {
-      var texX = Math.floor(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
-
-      if (transformY > 0) {
-        for (var y = Math.floor(drawStartY); y < drawEndY; y++) {
-          var d = (y - vMoveScreen) * 256 - resolutionHeight * 128 + spriteHeight * 128;
-          var texY = d * texHeight / spriteHeight / 256;
-          (0, _imageData.copyPixel)(ammoImageData, texX, texY, textureSize, rayCastingImageData, stripe, y, resolutionWidth);
-        }
-      }
-    }
-  });
-};
-
-var update = function update() {
-  objects.forEach(function (obj) {
-    return obj.drawn = false;
-  });
-
-  var _loop = function _loop(x) {
-    var cameraX = 2 * x / resolutionWidth - 1;
-    var rayDir = new _vector2d.default(playerDir.x + planeX * cameraX, playerDir.y + planeY * cameraX);
-
-    var _DDA = DDA(rayDir),
-        _DDA2 = _slicedToArray(_DDA, 3),
-        hitWalls = _DDA2[0],
-        stepX = _DDA2[1],
-        stepY = _DDA2[2]; // Calculate distance projected on camera
-
-
-    hitWalls.reverse().forEach(function (hitWall) {
-      var ray = {};
-      ray.dir = rayDir;
-      var mapPos = hitWall.mapPos,
-          side = hitWall.side,
-          value = hitWall.value,
-          backWall = hitWall.backWall;
-
-      if (side === 0) {
-        ray.perpWallDist = (mapPos.x - playerPos.x + (1 - stepX) / 2) / ray.dir.x;
-      } else {
-        ray.perpWallDist = (mapPos.y - playerPos.y + (1 - stepY) / 2) / ray.dir.y;
-      } // Calculate col height;
-
-
-      var lineHeight = Math.floor(Math.abs(resolutionHeight / ray.perpWallDist)); // calculate lowest and highest pixel of wall;
-
-      ray.drawStart = (resolutionHeight + lineHeight) / 2;
-      ray.drawEnd = ray.drawStart - lineHeight / (value === 3 ? value : 1);
-      var wallX;
-
-      if (side === 0) {
-        wallX = playerPos.y + ray.perpWallDist * ray.dir.y;
-      } else {
-        wallX = playerPos.x + ray.perpWallDist * ray.dir.x;
-      }
-
-      wallX -= Math.floor(wallX);
-      drawFloorAndCeling(mapPos, side, wallX, ray, x);
-      var textureX = Math.floor((wallX - Math.floor(wallX)) * textureSize);
-
-      for (var i = 0; i < Math.floor(lineHeight / (value === 3 ? value : 1)); i++) {
-        if (Math.floor(ray.drawStart - i + playerLookY) > resolutionHeight) {
-          continue;
-        }
-
-        var textureY = Math.floor(mapValue(i, 0, lineHeight, 0, textureSize));
-        (0, _imageData.copyPixel)(wallImageData, textureX, textureY, textureSize, rayCastingImageData, x, ray.drawStart - i + playerLookY, resolutionWidth);
-      }
-
-      if (value === 3 && backWall) {// drawFloorInLowerWalls(backWall, playerPos, ray, stepX, stepY, x);
-      }
-    });
-  };
-
-  for (var x = 0; x < resolutionWidth; x++) {
-    _loop(x);
-  }
-
-  drawObjects(playerPos, playerDir);
-};
-
-var rotSpeed = 0.07;
-var movementSpeed = 0.1;
-
 var playerMovement = function playerMovement() {
   if (_inputManager.InputManager.keys[87] && _inputManager.InputManager.keys[87].isDown) {
-    playerPos.y += playerDir.y * movementSpeed;
-    playerPos.x += playerDir.x * movementSpeed;
+    player.position.y += player.dir.y * _config.playerMovementSpeed;
+    player.position.x += player.dir.x * _config.playerMovementSpeed;
   }
 
   if (_inputManager.InputManager.keys[83] && _inputManager.InputManager.keys[83].isDown) {
-    playerPos.y -= playerDir.y * movementSpeed;
-    playerPos.x -= playerDir.x * movementSpeed;
+    player.position.y -= player.dir.y * _config.playerMovementSpeed;
+    player.position.x -= player.dir.x * _config.playerMovementSpeed;
   }
-
-  if (_inputManager.InputManager.keys[68] && _inputManager.InputManager.keys[68].isDown) {// playerPos.y -= playerDir.y * movementSpeed;
-    // playerPos.x += playerDir.x * movementSpeed;
-  }
-
-  if (_inputManager.InputManager.keys[65] && _inputManager.InputManager.keys[65].isDown) {} // playerPos.y += playerDir.y * movementSpeed;
-  // playerPos.x -= playerDir.x * movementSpeed;
-  // if (InputManager.keys[68] && InputManager.keys[68].isDown) {
-  // const oldDirX = playerDir.x;
-  // playerDir.x = playerDir.x * Math.cos(-rotSpeed) - playerDir.y * Math.sin(-rotSpeed);
-  // playerDir.y = oldDirX * Math.sin(-rotSpeed) + playerDir.y * Math.cos(-rotSpeed);
-  //
-  // const oldPlaneX = planeX;
-  // planeX = planeX * Math.cos(-rotSpeed) - planeY * Math.sin(-rotSpeed);
-  // planeY = oldPlaneX * Math.sin(-rotSpeed) + planeY * Math.cos(-rotSpeed);
-  // }
-  //
-  // if (InputManager.keys[65] && InputManager.keys[65].isDown) {
-  // const oldDirX = playerDir.x;
-  // playerDir.x = playerDir.x * Math.cos(rotSpeed) - playerDir.y * Math.sin(rotSpeed);
-  // playerDir.y = oldDirX * Math.sin(rotSpeed) + playerDir.y * Math.cos(rotSpeed);
-  //
-  // const oldPlaneX = planeX;
-  // planeX = planeX * Math.cos(rotSpeed) - planeY * Math.sin(rotSpeed);
-  // planeY = oldPlaneX * Math.sin(rotSpeed) + planeY * Math.cos(rotSpeed);
-  // }
-  //
-  // playerLookY += Math.floor((InputManager.mouseState.prevPos.y - InputManager.mouseState.pos.y));
-
 };
 
 var loop = function loop() {
-  ctx.clearRect(0, 0, 800, 400);
-  floorCtx.clearRect(0, 0, 800, 400);
-  ctx.save();
-  rayCastingImageData = new ImageData(resolutionWidth, resolutionHeight);
-  update();
-  floorCtx.putImageData(rayCastingImageData, 0, 0);
-  ctx.restore();
-  window.requestAnimationFrame(loop);
   playerMovement();
+  raycastRenderer.update(player, objects, walls);
+  pointingAtSpan.innerHTML = "".concat(raycastRenderer.getCamera().pointingAt);
+  window.requestAnimationFrame(loop);
 };
 
-window.addEventListener('keydown', function (e) {
-  if (e.key === 'q') {
-    offset += 10;
-  }
-
-  if (e.key === 'z') {
-    offset -= 10;
-  }
-});
-
 var loadAsset = function loadAsset(src) {
+  console.log(src);
   return new Promise(function (resolve) {
+    console.log('test123');
     var asset = new Image();
     asset.src = src;
 
     asset.onload = function () {
       resolve(asset);
     };
+
+    asset.onerror = function (err) {
+      console.log(err);
+    };
   });
 };
 
-loadAsset('Wall.png').then(function (asset) {
-  wallImageData = (0, _imageData.getImageDataFromImage)(asset);
+console.log("test");
+loadAsset('./Wall.png').then(function (asset) {
+  console.log("test123");
+  var wallImageData = (0, _imageData.getImageDataFromImage)(asset);
+  walls.forEach(function (wall) {
+    return wall.texture = wallImageData;
+  });
   return loadAsset('Floor.png');
 }).then(function (asset) {
-  floorImageData = (0, _imageData.getImageDataFromImage)(asset);
+  window.floorImageData = (0, _imageData.getImageDataFromImage)(asset);
   return loadAsset('Celling.png');
 }).then(function (asset) {
-  celingImageData = (0, _imageData.getImageDataFromImage)(asset);
+  window.celingImageData = (0, _imageData.getImageDataFromImage)(asset);
   return loadAsset('Ammo.png');
 }).then(function (asset) {
-  ammoImageData = (0, _imageData.getImageDataFromImage)(asset);
+  var ammoImageData = (0, _imageData.getImageDataFromImage)(asset);
+  objects.forEach(function (object) {
+    object.texture = ammoImageData;
+  });
   window.requestAnimationFrame(loop);
 });
-},{"./map":"map.js","./vector2d":"vector2d.js","./inputManager":"inputManager.js","./imageData.helper":"imageData.helper.js"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./vector2d":"vector2d.js","./inputManager":"inputManager.js","./imageData.helper":"imageData.helper.js","./config":"config.js","./raycastRenderer":"raycastRenderer.js"}],"../../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -850,7 +974,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50001" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62593" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -1025,5 +1149,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../node_modules/parcel/src/builtins/hmr-runtime.js","index.js"], null)
+},{}]},{},["../../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)
 //# sourceMappingURL=/src.e31bb0bc.js.map

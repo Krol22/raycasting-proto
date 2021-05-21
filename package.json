@@ -1,10 +1,12 @@
 {
   "devDependencies": {
     "cssnano": "^4.1.10",
-    "eslint": "^6.6.0",
-    "parcel": "^1.12.3"
+    "eslint": "^6.6.0"
   },
   "scripts": {
     "start": "parcel src/index.html --open"
+  },
+  "dependencies": {
+    "parcel": "^2.0.0-beta.2"
   }
 }

@@ -1,0 +1,136 @@
+var _vector2d = require('./vector2d');
+var _parcelHelpers = require("@parcel/transformer-js/lib/esmodule-helpers.js");
+var _vector2dDefault = _parcelHelpers.interopDefault(_vector2d);
+var _inputManager = require('./inputManager');
+var _imageDataHelper = require('./imageData.helper');
+var _config = require('./config');
+var _raycastRenderer = require('./raycastRenderer');
+var _raycastRendererDefault = _parcelHelpers.interopDefault(_raycastRenderer);
+const pointingAtSpan = document.querySelector('#pointing-at');
+const player = {
+  position: new _vector2dDefault.default(20, 20),
+  dir: new _vector2dDefault.default(1, -1),
+  pointing: 'nothing'
+};
+const walls = [{
+  v1: new _vector2dDefault.default(30, 0),
+  v2: new _vector2dDefault.default(30, 30)
+}, {
+  v1: new _vector2dDefault.default(30, 30),
+  v2: new _vector2dDefault.default(0, 30)
+}, {
+  v1: new _vector2dDefault.default(20, 20),
+  v2: new _vector2dDefault.default(0, 20)
+}, {
+  v1: new _vector2dDefault.default(10, 10),
+  v2: new _vector2dDefault.default(0, 10)
+}, {
+  v1: new _vector2dDefault.default(0, 30),
+  v2: new _vector2dDefault.default(0, 0)
+}, {
+  v1: new _vector2dDefault.default(0, 0),
+  v2: new _vector2dDefault.default(30, 0)
+}];
+const objects = [{
+  id: 0,
+  pos: new _vector2dDefault.default(15, 15),
+  type: 'AMMO',
+  vMove: -160,
+  uDiv: 4,
+  vDiv: 4
+}, {
+  id: 1,
+  pos: new _vector2dDefault.default(25, 17),
+  type: 'AMMO',
+  vMove: 160,
+  uDiv: 4,
+  vDiv: 4
+}, {
+  id: 2,
+  pos: new _vector2dDefault.default(5, 15),
+  type: 'AMMO',
+  vMove: 0,
+  uDiv: 4,
+  vDiv: 4
+}];
+const canvas = document.querySelector('#game-canvas');
+const ctx = canvas.getContext('2d');
+ctx.webkitImageSmoothingEnabled = false;
+ctx.mozImageSmoothingEnabled = false;
+ctx.imageSmoothingEnabled = false;
+const raycastRenderer = new _raycastRendererDefault.default(ctx);
+const camera = raycastRenderer.getCamera();
+const mouseMove = e => {
+  if (e.movementY > 0 && camera.lookY > _config.cameraMinY || e.movementY < 0 && camera.lookY < _config.cameraMaxY) {
+    camera.lookY -= e.movementY;
+  }
+  const rotSpeed = e.movementX / 1000;
+  const oldDirX = player.dir.x;
+  player.dir.x = player.dir.x * Math.cos(rotSpeed) - player.dir.y * Math.sin(rotSpeed);
+  player.dir.y = oldDirX * Math.sin(rotSpeed) + player.dir.y * Math.cos(rotSpeed);
+  const oldPlaneX = camera.planeX;
+  camera.planeX = camera.planeX * Math.cos(rotSpeed) - camera.planeY * Math.sin(rotSpeed);
+  camera.planeY = oldPlaneX * Math.sin(rotSpeed) + camera.planeY * Math.cos(rotSpeed);
+};
+let pointerlockvalue = false;
+document.addEventListener('pointerlockchange', () => {
+  pointerlockvalue = !pointerlockvalue;
+  if (pointerlockvalue) {
+    canvas.addEventListener('mousemove', mouseMove);
+  } else {
+    canvas.removeEventListener('mousemove', mouseMove);
+  }
+});
+canvas.addEventListener('mousedown', () => {
+  canvas.requestPointerLock();
+});
+_inputManager.InputManager.init('#game-canvas');
+const playerMovement = () => {
+  if (_inputManager.InputManager.keys[87] && _inputManager.InputManager.keys[87].isDown) {
+    player.position.y += player.dir.y * _config.playerMovementSpeed;
+    player.position.x += player.dir.x * _config.playerMovementSpeed;
+  }
+  if (_inputManager.InputManager.keys[83] && _inputManager.InputManager.keys[83].isDown) {
+    player.position.y -= player.dir.y * _config.playerMovementSpeed;
+    player.position.x -= player.dir.x * _config.playerMovementSpeed;
+  }
+};
+const loop = () => {
+  playerMovement();
+  raycastRenderer.update(player, objects, walls);
+  pointingAtSpan.innerHTML = `${raycastRenderer.getCamera().pointingAt}`;
+  window.requestAnimationFrame(loop);
+};
+const loadAsset = src => {
+  console.log(src);
+  return new Promise(resolve => {
+    console.log('test123');
+    const asset = new Image();
+    asset.src = src;
+    asset.onload = () => {
+      resolve(asset);
+    };
+    asset.onerror = err => {
+      console.log(err);
+    };
+  });
+};
+console.log("test");
+loadAsset('../Wall.png').then(asset => {
+  console.log("test123");
+  const wallImageData = _imageDataHelper.getImageDataFromImage(asset);
+  walls.forEach(wall => wall.texture = wallImageData);
+  return loadAsset('Floor.png');
+}).then(asset => {
+  window.floorImageData = _imageDataHelper.getImageDataFromImage(asset);
+  return loadAsset('Celling.png');
+}).then(asset => {
+  window.celingImageData = _imageDataHelper.getImageDataFromImage(asset);
+  return loadAsset('Ammo.png');
+}).then(asset => {
+  const ammoImageData = _imageDataHelper.getImageDataFromImage(asset);
+  objects.forEach(object => {
+    object.texture = ammoImageData;
+  });
+  window.requestAnimationFrame(loop);
+});

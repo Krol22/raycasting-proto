@@ -1,0 +1,17 @@
+html {
+      overflow: hidden;
+      background-color: black;
+      color: white;
+      font-family: 'Courier';
+    }
+    .title {
+      text-align: center;
+    }
+    .game canvas {
+      border: 1px solid red;
+      position: absolute;
+    }
+
+    .game {
+      height: 600px;
+    }

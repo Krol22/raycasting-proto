@@ -17,19 +17,22 @@
       text-align: center;
     }
     .game canvas {
+      border: 1px solid red;
       position: absolute;
     }
+
     .game {
-      height: 400px;
+      height: 600px;
     }</style>
   <h1 class="title"> Raycasting engine - demo </h1>
   <div class="game">
-    <canvas id="floor-canvas" width="800" height="400"></canvas>
-    <canvas id="game-canvas" width="800" height="400"></canvas>
+    <canvas id="floor-canvas" width="800" height="600"></canvas>
+    <canvas id="game-canvas" width="800" height="600"></canvas>
   </div>
   <div class="desc">
     <div>
       <h3>Controls : WS - move , mouse to look</h3>
+      <h3>Currently pointing at: <span id="pointing-at"></span></h3>
     </div>
     <div>
       <h3>Features</h3>
@@ -40,7 +43,6 @@
         <li>Floor / Celing</li>
         <li>Static objects</li>
         <li>Free look</li>
-        <li>Variable walls height (but without floor/celing)</li>
       </ul>
     </div>
   </div>
